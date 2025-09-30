@@ -22,7 +22,8 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
-
+.ssh
+Makefile
 
 #Ignore vscode AI rules
 .github/instructions/codacy.instructions.md
