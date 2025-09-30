@@ -32,7 +32,7 @@ class PropositionController extends Controller
                 session()->flash('new_proposition_id', $proposition->id);
             } else {
                 // User already created a proposition today
-                session()->flash('error', 'Vous ne pouvez créer qu\'une proposition par jour.');
+                session()->flash('error', 'You can only create one proposition per day.');
             }
 
             // Re-fetch propositions to include the new one
@@ -52,7 +52,7 @@ class PropositionController extends Controller
 
         // Check if user can create a proposition today
         if (!Proposition::canUserCreatePropositionToday()) {
-            return redirect()->back()->withErrors(['content' => 'Vous ne pouvez créer qu\'une proposition par jour.']);
+            return redirect()->back()->withErrors(['content' => 'You can only create one proposition per day.']);
         }
 
         $proposition = Proposition::create([

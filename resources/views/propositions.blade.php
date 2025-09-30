@@ -22,8 +22,8 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <style>
-          /* Appliquer un flou sur tout le contenu sauf la modal lorsque le body a la classe 'modal-open' */
-          body.modal-open > :not(#auth-modal) {
+          /* Appliquer un flou sur tout le contenu sauf les modals lorsque le body a la classe 'modal-open' */
+          body.modal-open > :not(#auth-modal):not(#one-day-modal) {
             filter: blur(5px);
           }
         </style>
@@ -654,10 +654,10 @@
                 <div id="one-day-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-60 hidden">
                     <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
                         <div class="p-6">
-                            <h3 class="text-lg font-bold text-gray-900">Action non autorisée</h3>
-                            <p class="mt-3 text-sm text-gray-700">Vous ne pouvez pas poster plus d'une proposition par jour. Revenez demain pour partager une nouvelle idée.</p>
+                            <h3 class="text-lg font-bold text-gray-900">Unauthorized Action</h3>
+                            <p class="mt-3 text-sm text-gray-700">You can not post more than one proposal per day. Please come back tomorrow to share a new idea.</p>
                             <div class="mt-6 text-right">
-                                <button id="one-day-close" class="inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">Fermer</button>
+                                <button id="one-day-close" class="inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">Close</button>
                             </div>
                         </div>
                     </div>
