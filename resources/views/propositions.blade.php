@@ -285,11 +285,46 @@
             // Voting functionality
             @auth
                 document.addEventListener('DOMContentLoaded', function() {
+                    // Function to update button states based on user's vote
+                    function updateButtonStates() {
+                        document.querySelectorAll('.proposition-card').forEach(card => {
+                            const propositionId = card.dataset.id;
+                            const upvoteBtn = card.querySelector('.upvote-btn');
+                            const downvoteBtn = card.querySelector('.downvote-btn');
+                            
+                            // Check if user has already voted for this proposition (would require server-side information)
+                            // For now, we'll implement a client-side tracking
+                            const userVoteType = localStorage.getItem(`vote_${propositionId}`);
+                            
+                            // Reset classes first
+                            upvoteBtn.classList.remove('bg-green-300', 'bg-green-500', 'text-white');
+                            downvoteBtn.classList.remove('bg-red-300', 'bg-red-500', 'text-white');
+                            
+                            // Add original styling
+                            upvoteBtn.classList.add('bg-green-100', 'hover:bg-green-200');
+                            downvoteBtn.classList.add('bg-red-100', 'hover:bg-red-200');
+                            
+                            // Apply styling based on user's vote
+                            if (userVoteType === 'upvote') {
+                                upvoteBtn.classList.remove('bg-green-100', 'hover:bg-green-200');
+                                upvoteBtn.classList.add('bg-green-500', 'text-white');
+                            } else if (userVoteType === 'downvote') {
+                                downvoteBtn.classList.remove('bg-red-100', 'hover:bg-red-200');
+                                downvoteBtn.classList.add('bg-red-500', 'text-white');
+                            }
+                        });
+                    }
+                    
+                    // Initial update of button states
+                    updateButtonStates();
+
                     // Upvote buttons
                     document.querySelectorAll('.upvote-btn').forEach(button => {
                         button.addEventListener('click', async function() {
                             const propositionId = this.dataset.id;
                             const countSpan = this.querySelector('.upvote-count');
+                            const downvoteBtn = this.closest('.proposition-card').querySelector('.downvote-btn');
+                            const downvoteCountSpan = downvoteBtn.querySelector('.downvote-count');
 
                             try {
                                 const response = await fetch(`/propositions/${propositionId}/upvote`, {
@@ -304,9 +339,40 @@
                                     const data = await response.json();
                                     countSpan.textContent = data.upvotes;
 
+                                    // Update downvote count if it changed
+                                    if (downvoteCountSpan) {
+                                        downvoteCountSpan.textContent = data.downvotes;
+                                    }
+
                                     // Animation
                                     this.classList.add('animate-pulse');
                                     setTimeout(() => this.classList.remove('animate-pulse'), 300);
+
+                                    // Update button states to reflect user's vote
+                                    // If upvote count increased compared to what was there before OR 
+                                    // if it's the same as before (meaning vote was toggled off), we need to track this
+                                    const currentUpvoteCount = parseInt(countSpan.textContent);
+                                    const currentDownvoteCount = parseInt(downvoteCountSpan.textContent);
+                                    const previousVote = localStorage.getItem(`vote_${propositionId}`);
+
+                                    if (previousVote === 'upvote') {
+                                        // User toggled off their upvote
+                                        localStorage.removeItem(`vote_${propositionId}`);
+                                        this.classList.remove('bg-green-500', 'text-white');
+                                        this.classList.add('bg-green-100', 'hover:bg-green-200');
+                                    } else {
+                                        // User added upvote or switched from downvote to upvote
+                                        localStorage.setItem(`vote_${propositionId}`, 'upvote');
+                                        this.classList.remove('bg-green-100', 'hover:bg-green-200');
+                                        this.classList.add('bg-green-500', 'text-white');
+                                        
+                                        // If user switched from downvote, update downvote button state
+                                        if (previousVote === 'downvote') {
+                                            downvoteBtn.classList.remove('bg-red-500', 'text-white');
+                                            downvoteBtn.classList.add('bg-red-100', 'hover:bg-red-200');
+                                            localStorage.removeItem(`vote_${propositionId}_downvote`);
+                                        }
+                                    }
                                 }
                             } catch (error) {
                                 console.error('Error upvoting:', error);
@@ -319,6 +385,8 @@
                         button.addEventListener('click', async function() {
                             const propositionId = this.dataset.id;
                             const countSpan = this.querySelector('.downvote-count');
+                            const upvoteBtn = this.closest('.proposition-card').querySelector('.upvote-btn');
+                            const upvoteCountSpan = upvoteBtn.querySelector('.upvote-count');
 
                             try {
                                 const response = await fetch(`/propositions/${propositionId}/downvote`, {
@@ -333,9 +401,36 @@
                                     const data = await response.json();
                                     countSpan.textContent = data.downvotes;
 
+                                    // Update upvote count if it changed
+                                    if (upvoteCountSpan) {
+                                        upvoteCountSpan.textContent = data.upvotes;
+                                    }
+
                                     // Animation
                                     this.classList.add('animate-pulse');
                                     setTimeout(() => this.classList.remove('animate-pulse'), 300);
+
+                                    // Update button states to reflect user's vote
+                                    const previousVote = localStorage.getItem(`vote_${propositionId}`);
+
+                                    if (previousVote === 'downvote') {
+                                        // User toggled off their downvote
+                                        localStorage.removeItem(`vote_${propositionId}`);
+                                        this.classList.remove('bg-red-500', 'text-white');
+                                        this.classList.add('bg-red-100', 'hover:bg-red-200');
+                                    } else {
+                                        // User added downvote or switched from upvote to downvote
+                                        localStorage.setItem(`vote_${propositionId}`, 'downvote');
+                                        this.classList.remove('bg-red-100', 'hover:bg-red-200');
+                                        this.classList.add('bg-red-500', 'text-white');
+                                        
+                                        // If user switched from upvote, update upvote button state
+                                        if (previousVote === 'upvote') {
+                                            upvoteBtn.classList.remove('bg-green-500', 'text-white');
+                                            upvoteBtn.classList.add('bg-green-100', 'hover:bg-green-200');
+                                            localStorage.removeItem(`vote_${propositionId}_upvote`);
+                                        }
+                                    }
                                 }
                             } catch (error) {
                                 console.error('Error downvoting:', error);

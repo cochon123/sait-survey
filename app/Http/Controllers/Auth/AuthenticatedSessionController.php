@@ -35,7 +35,7 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('propositions.index');
         }
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->route('propositions.index');
     }
 
     /**

@@ -38,7 +38,7 @@ class GoogleController extends Controller
             );
 
             Auth::login($user, true);
-            return redirect()->intended('/');
+            return redirect()->route('propositions.index');
         } catch (Exception $e) {
             return redirect('/login')->with('error', 'Something went wrong!');
         }

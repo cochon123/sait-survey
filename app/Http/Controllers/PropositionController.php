@@ -83,14 +83,14 @@ class PropositionController extends Controller
             $currentVote = $proposition->getUserVoteType($userId);
             
             if ($currentVote === 'upvote') {
-                // User is trying to upvote again - do nothing
-                return response()->json([
-                    'message' => 'Vous avez déjà voté pour cette proposition',
-                    'upvotes' => $proposition->upvotes,
-                    'downvotes' => $proposition->downvotes
-                ]);
+                // User is trying to upvote again - remove the vote (toggle)
+                PropositionVote::where('user_id', $userId)
+                    ->where('proposition_id', $proposition->id)
+                    ->delete();
+                
+                $proposition->decrement('upvotes');
             } else {
-                // User had downvoted, now switching to upvote
+                // User had downvoted, now switching to upvote - remove downvote and add upvote
                 PropositionVote::where('user_id', $userId)
                     ->where('proposition_id', $proposition->id)
                     ->update(['vote_type' => 'upvote']);
@@ -129,14 +129,14 @@ class PropositionController extends Controller
             $currentVote = $proposition->getUserVoteType($userId);
             
             if ($currentVote === 'downvote') {
-                // User is trying to downvote again - do nothing
-                return response()->json([
-                    'message' => 'Vous avez déjà voté contre cette proposition',
-                    'upvotes' => $proposition->upvotes,
-                    'downvotes' => $proposition->downvotes
-                ]);
+                // User is trying to downvote again - remove the vote (toggle)
+                PropositionVote::where('user_id', $userId)
+                    ->where('proposition_id', $proposition->id)
+                    ->delete();
+                
+                $proposition->decrement('downvotes');
             } else {
-                // User had upvoted, now switching to downvote
+                // User had upvoted, now switching to downvote - remove upvote and add downvote
                 PropositionVote::where('user_id', $userId)
                     ->where('proposition_id', $proposition->id)
                     ->update(['vote_type' => 'downvote']);
