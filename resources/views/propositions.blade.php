@@ -117,6 +117,13 @@
                                         </svg>
                                         <span class="downvote-count text-sm font-medium text-red-700">{{ $proposition->downvotes }}</span>
                                     </button>
+                                    @if($proposition->user_id === Auth::id())
+                                        <button class="delete-btn flex items-center justify-center px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-all duration-200 transform hover:scale-105" data-id="{{ $proposition->id }}" title="Delete proposition">
+                                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                        </button>
+                                    @endif
                                 @else
                                     <div class="text-center text-sm text-gray-500">
                                         <p>Login to vote</p>
@@ -434,6 +441,52 @@
                                 }
                             } catch (error) {
                                 console.error('Error downvoting:', error);
+                            }
+                        });
+                    });
+
+                    // Delete buttons
+                    document.querySelectorAll('.delete-btn').forEach(button => {
+                        button.addEventListener('click', async function() {
+                            const propositionId = this.dataset.id;
+                            const propositionCard = this.closest('.proposition-card');
+
+                            // Show confirmation dialog
+                            if (!confirm('Are you sure you want to delete this proposition? This action cannot be undone.')) {
+                                return;
+                            }
+
+                            try {
+                                const response = await fetch(`/propositions/${propositionId}`, {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                    }
+                                });
+
+                                if (response.ok) {
+                                    // Add fade out animation
+                                    propositionCard.style.transition = 'opacity 0.3s ease-out';
+                                    propositionCard.style.opacity = '0';
+                                    
+                                    // Remove the card from the DOM after animation
+                                    setTimeout(() => {
+                                        propositionCard.remove();
+                                        
+                                        // Check if there are no more propositions
+                                        const propositionsList = document.getElementById('propositions-list');
+                                        if (propositionsList.children.length === 0) {
+                                            propositionsList.innerHTML = '<div class="bg-white rounded-lg shadow-md p-8 text-center"><p class="text-gray-500 text-lg">No propositions yet. Be the first to share your idea!</p></div>';
+                                        }
+                                    }, 300);
+                                } else {
+                                    const data = await response.json();
+                                    alert(data.error || 'Error deleting proposition');
+                                }
+                            } catch (error) {
+                                console.error('Error deleting:', error);
+                                alert('An error occurred while deleting the proposition');
                             }
                         });
                     });
