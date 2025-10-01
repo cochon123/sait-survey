@@ -19,6 +19,7 @@ Route::get('/propositions', [PropositionController::class, 'index'])->name('prop
 Route::post('/propositions', [PropositionController::class, 'store'])->middleware('auth')->name('propositions.store');
 Route::post('/propositions/{proposition}/upvote', [PropositionController::class, 'upvote'])->middleware('auth')->name('propositions.upvote');
 Route::post('/propositions/{proposition}/downvote', [PropositionController::class, 'downvote'])->middleware('auth')->name('propositions.downvote');
+Route::delete('/propositions/{proposition}', [PropositionController::class, 'destroy'])->middleware('auth')->name('propositions.destroy');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

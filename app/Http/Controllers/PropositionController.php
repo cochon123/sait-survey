@@ -160,4 +160,22 @@ class PropositionController extends Controller
             'downvotes' => $proposition->fresh()->downvotes
         ]);
     }
+
+    public function destroy(Proposition $proposition)
+    {
+        // Check if user is authenticated
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Authentication required'], 401);
+        }
+
+        // Check if the authenticated user is the creator of the proposition
+        if ($proposition->user_id !== Auth::id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Delete the proposition
+        $proposition->delete();
+
+        return response()->json(['success' => true, 'message' => 'Proposition deleted successfully']);
+    }
 }
