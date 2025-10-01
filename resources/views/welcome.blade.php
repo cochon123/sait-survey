@@ -84,7 +84,7 @@
                 </div>
 
                 <div class="text-center mb-12">
-                    <p class="text-xl text-gray-700 mb-6 max-w-3xl mx-auto">If you want to actively take part of the project <a href="{{ route('login') }}" class="text-blue-600 underline">just click here</a>. But do not feel obligated. Submitting your ideas already mean a lot for us. We will do our best to transform your ideas into reality. We believe in project build by community.</p>
+                    <p class="text-xl text-gray-700 mb-6 max-w-3xl mx-auto">If you want to actively take part of the project <a href="{{ route('join') }}" class="text-blue-600 underline">just click here</a>. But do not feel obligated. Submitting your ideas already mean a lot for us. We will do our best to transform your ideas into reality. We believe in project build by community.</p>
                     <a href="{{ route('propositions.index') }}" class="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition duration-300 text-lg font-medium">View Propositions</a>
                 </div>
             </section>

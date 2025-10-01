@@ -11,6 +11,9 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+Route::get('/join', [App\Http\Controllers\JoinController::class, 'index'])->name('join');
+Route::post('/join', [App\Http\Controllers\JoinController::class, 'submit'])->name('join.submit');
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
