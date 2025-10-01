@@ -83,7 +83,7 @@
                     <button id="sort-top" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">Top Voted</button>
                 </div>
                 <div class="text-sm text-gray-500">
-                    {{ $propositions->count() }} propositions
+                    <span id="proposition-count">{{ $propositions->count() }}</span> propositions
                 </div>
             </div>
 
@@ -474,8 +474,14 @@
                                     setTimeout(() => {
                                         propositionCard.remove();
                                         
-                                        // Check if there are no more propositions
+                                        // Update proposition count
                                         const propositionsList = document.getElementById('propositions-list');
+                                        const countElement = document.getElementById('proposition-count');
+                                        if (countElement) {
+                                            countElement.textContent = propositionsList.children.length;
+                                        }
+                                        
+                                        // Check if there are no more propositions
                                         if (propositionsList.children.length === 0) {
                                             propositionsList.innerHTML = '<div class="bg-white rounded-lg shadow-md p-8 text-center"><p class="text-gray-500 text-lg">No propositions yet. Be the first to share your idea!</p></div>';
                                         }
