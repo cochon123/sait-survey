@@ -46,6 +46,10 @@
                                 <button type="submit" class="text-blue-600 hover:text-blue-800">Logout</button>
                             </form>
                         @endauth
+                        <!-- PWA Install Button -->
+                        <button id="installPWA" class="bg-indigo-600 text-white px-4 py-2 rounded hidden" style="display: none;">
+                            Télécharger l'application
+                        </button>
                     </div>
                 </div>
             </div>
