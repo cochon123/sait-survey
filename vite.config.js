@@ -18,6 +18,7 @@ export default defineConfig({
                 short_name: 'UniPulse',
                 theme_color: '#6366f1',
                 start_url: '/',
+                scope: '/',
                 display: 'standalone',
                 background_color: '#ffffff',
                 icons: [
