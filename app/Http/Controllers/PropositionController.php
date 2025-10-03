@@ -78,41 +78,7 @@ class PropositionController extends Controller
             return response()->json(['error' => 'Authentication required'], 401);
         }
 
-        // Check if user has already voted
-        if ($proposition->hasUserVoted($userId)) {
-            $currentVote = $proposition->getUserVoteType($userId);
-            
-            if ($currentVote === 'upvote') {
-                // User is trying to upvote again - remove the vote (toggle)
-                PropositionVote::where('user_id', $userId)
-                    ->where('proposition_id', $proposition->id)
-                    ->delete();
-                
-                $proposition->decrement('upvotes');
-            } else {
-                // User had downvoted, now switching to upvote - remove downvote and add upvote
-                PropositionVote::where('user_id', $userId)
-                    ->where('proposition_id', $proposition->id)
-                    ->update(['vote_type' => 'upvote']);
-                
-                $proposition->increment('upvotes');
-                $proposition->decrement('downvotes');
-            }
-        } else {
-            // New vote
-            PropositionVote::create([
-                'user_id' => $userId,
-                'proposition_id' => $proposition->id,
-                'vote_type' => 'upvote'
-            ]);
-            
-            $proposition->increment('upvotes');
-        }
-
-        return response()->json([
-            'upvotes' => $proposition->fresh()->upvotes,
-            'downvotes' => $proposition->fresh()->downvotes
-        ]);
+        return $this->toggleVote($proposition, $userId, 'upvote');
     }
 
     public function downvote(Proposition $proposition)
@@ -124,35 +90,67 @@ class PropositionController extends Controller
             return response()->json(['error' => 'Authentication required'], 401);
         }
 
+        return $this->toggleVote($proposition, $userId, 'downvote');
+    }
+
+    /**
+     * Toggle vote for a proposition
+     * 
+     * @param Proposition $proposition
+     * @param int $userId
+     * @param string $voteType
+     * @return \Illuminate\Http\JsonResponse
+     */
+    private function toggleVote(Proposition $proposition, int $userId, string $voteType)
+    {
+        // Determine the opposite vote type
+        $oppositeVoteType = $voteType === 'upvote' ? 'downvote' : 'upvote';
+        
         // Check if user has already voted
         if ($proposition->hasUserVoted($userId)) {
             $currentVote = $proposition->getUserVoteType($userId);
             
-            if ($currentVote === 'downvote') {
-                // User is trying to downvote again - remove the vote (toggle)
+            if ($currentVote === $voteType) {
+                // User is trying to vote the same way again - remove the vote (toggle)
                 PropositionVote::where('user_id', $userId)
                     ->where('proposition_id', $proposition->id)
                     ->delete();
                 
-                $proposition->decrement('downvotes');
+                // Update vote counts based on vote type
+                if ($voteType === 'upvote') {
+                    $proposition->decrement('upvotes');
+                } else {
+                    $proposition->decrement('downvotes');
+                }
             } else {
-                // User had upvoted, now switching to downvote - remove upvote and add downvote
+                // User had opposite vote, now switching - update vote and adjust both counts
                 PropositionVote::where('user_id', $userId)
                     ->where('proposition_id', $proposition->id)
-                    ->update(['vote_type' => 'downvote']);
+                    ->update(['vote_type' => $voteType]);
                 
-                $proposition->increment('downvotes');
-                $proposition->decrement('upvotes');
+                // Update vote counts (increment current vote, decrement opposite vote)
+                if ($voteType === 'upvote') {
+                    $proposition->increment('upvotes');
+                    $proposition->decrement('downvotes');
+                } else {
+                    $proposition->increment('downvotes');
+                    $proposition->decrement('upvotes');
+                }
             }
         } else {
             // New vote
             PropositionVote::create([
                 'user_id' => $userId,
                 'proposition_id' => $proposition->id,
-                'vote_type' => 'downvote'
+                'vote_type' => $voteType
             ]);
             
-            $proposition->increment('downvotes');
+            // Update vote counts based on vote type
+            if ($voteType === 'upvote') {
+                $proposition->increment('upvotes');
+            } else {
+                $proposition->increment('downvotes');
+            }
         }
 
         return response()->json([
