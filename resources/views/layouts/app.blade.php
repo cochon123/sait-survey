@@ -55,7 +55,7 @@
         <!-- Favicon -->
         <link rel="icon" type="image/png" sizes="32x32" href="/images/icons/icon-72x72.png">
         <link rel="icon" type="image/png" sizes="16x16" href="/images/icons/icon-72x72.png">
-        <link rel="shortcut icon" href="/favicon.ico">
+        <link rel="shortcut icon" href="/favicon.ico">>
         
 
     </head>

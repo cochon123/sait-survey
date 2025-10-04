@@ -120,7 +120,7 @@ function setupInstallButton(browserInfo) {
         installButton.style.display = 'block';
         installButton.classList.remove('hidden');
     } else if (browserInfo.isFirefox) {
-        // Firefox - Different installation mechanism
+        // Firefox - Automatic installation when possible
         installButton.innerHTML = `
             <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8l-8-8-8 8"></path>
@@ -128,7 +128,21 @@ function setupInstallButton(browserInfo) {
             Installer l'app
         `;
         installButton.addEventListener('click', () => {
-            showFirefoxInstallInstructions();
+            // Try to trigger automatic installation for Firefox
+            if ('serviceWorker' in navigator && 'BeforeInstallPromptEvent' in window) {
+                // Firefox might support automatic installation in newer versions
+                window.location.reload();
+            } else {
+                // Fallback: Show brief hint
+                const hint = document.createElement('div');
+                hint.innerHTML = `
+                    <div class="fixed top-20 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 text-sm">
+                        Recherchez l'icône ⊕ dans la barre d'adresse
+                    </div>
+                `;
+                document.body.appendChild(hint);
+                setTimeout(() => hint.remove(), 3000);
+            }
         });
         installButton.style.display = 'block';
         installButton.classList.remove('hidden');
@@ -139,44 +153,19 @@ function setupInstallButton(browserInfo) {
                 installButton.style.display = 'block';
                 installButton.classList.remove('hidden');
                 installButton.addEventListener('click', () => {
-                    showFirefoxInstallInstructions(); // Fallback to manual instructions
+                    // Fallback hint for Chrome without prompt
+                    const hint = document.createElement('div');
+                    hint.innerHTML = `
+                        <div class="fixed top-20 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 text-sm">
+                            App déjà installée ou non compatible
+                        </div>
+                    `;
+                    document.body.appendChild(hint);
+                    setTimeout(() => hint.remove(), 3000);
                 });
             }
         }, 3000);
     }
-}
-
-// Firefox installation instructions
-function showFirefoxInstallInstructions() {
-    const modal = document.createElement('div');
-    modal.innerHTML = `
-        <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-lg p-6 max-w-md w-full">
-                <h3 class="text-lg font-semibold mb-4">Installer UniPulse sur Firefox</h3>
-                <div class="space-y-3 text-sm">
-                    <p class="flex items-center">
-                        <span class="inline-block w-6 h-6 bg-blue-100 text-blue-600 rounded-full text-center text-xs leading-6 mr-3">1</span>
-                        Cherchez l'icône ⊕ dans la barre d'adresse
-                    </p>
-                    <p class="flex items-center">
-                        <span class="inline-block w-6 h-6 bg-blue-100 text-blue-600 rounded-full text-center text-xs leading-6 mr-3">2</span>
-                        Ou dans le menu ≡ → "Installer cette application"
-                    </p>
-                    <p class="flex items-center">
-                        <span class="inline-block w-6 h-6 bg-blue-100 text-blue-600 rounded-full text-center text-xs leading-6 mr-3">3</span>
-                        Confirmez l'installation
-                    </p>
-                    <p class="text-xs text-gray-600 mt-2">
-                        💡 Si vous ne voyez pas l'option, assurez-vous d'être en HTTPS
-                    </p>
-                </div>
-                <button onclick="this.parentElement.parentElement.remove()" class="mt-4 w-full bg-indigo-600 text-white py-2 rounded-lg">
-                    Compris!
-                </button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(modal);
 }
 
 // Safari iOS installation instructions
