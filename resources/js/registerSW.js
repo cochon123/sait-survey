@@ -5,24 +5,35 @@ function registerServiceWorker() {
         if (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
             console.log('Registering service worker...');
             
-            // Register with root scope to match manifest
-            navigator.serviceWorker.register('/build/sw.js', { scope: '/' })
-                .then(function(registration) {
-                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    
-                    // Check for updates
-                    registration.addEventListener('updatefound', () => {
-                        const newWorker = registration.installing;
-                        newWorker.addEventListener('statechange', () => {
-                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                console.log('New content is available; please refresh.');
-                            }
-                        });
-                    });
-                })
-                .catch(function(err) {
-                    console.error('ServiceWorker registration failed: ', err);
+            // First, clean up any existing registrations with wrong scope
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                // Unregister any SW not in root scope
+                registrations.forEach(function(registration) {
+                    if (registration.scope !== location.origin + '/') {
+                        console.log('Cleaning up old registration:', registration.scope);
+                        registration.unregister();
+                    }
                 });
+                
+                // Then register the correct one at root
+                return navigator.serviceWorker.register('/sw.js', { scope: '/' });
+            })
+            .then(function(registration) {
+                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                
+                // Check for updates
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            console.log('New content is available; please refresh.');
+                        }
+                    });
+                });
+            })
+            .catch(function(err) {
+                console.error('ServiceWorker registration failed: ', err);
+            });
         } else {
             console.log('ServiceWorker not registered: Insecure context (requires HTTPS or localhost)');
         }

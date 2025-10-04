@@ -37,7 +37,7 @@ function checkPWASupport() {
     }
     
     // Check Service Worker files
-    const swUrls = ['/build/sw.js', '/sw.js'];
+    const swUrls = ['/sw.js', '/build/sw.js'];
     swUrls.forEach(url => {
         fetch(url)
             .then(response => {

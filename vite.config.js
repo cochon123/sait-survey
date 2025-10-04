@@ -13,6 +13,7 @@ export default defineConfig({
             injectRegister: null, // We handle registration manually
             filename: 'sw.js',
             strategies: 'generateSW', // Use generateSW instead of injectManifest
+            outDir: 'public', // Generate SW in public root instead of build folder
             workbox: {
                 globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
                 navigateFallback: null, // Disable for Laravel routes
