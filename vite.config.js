@@ -34,6 +34,7 @@ export default defineConfig({
                     }
                 ],
             },
+            injectRegister: false, // Disable automatic registration
         }),
     ],
 });
