@@ -6,28 +6,10 @@ window.Alpine = Alpine;
 
 Alpine.start();
 
-// PWA Install functionality
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    document.getElementById('installPWA').style.display = 'block';
-});
-
-document.getElementById('installPWA')?.addEventListener('click', () => {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-                console.log('User accepted the install prompt');
-            } else {
-                console.log('User dismissed the install prompt');
-            }
-            deferredPrompt = null;
-            document.getElementById('installPWA').style.display = 'none';
-        });
-    }
-});
-
-// Register service worker securely
+// Register service worker with PWA functionality
 import './registerSW.js';
+
+// Temporary: PWA debugging (remove in production)
+if (process.env.NODE_ENV === 'development' || location.hostname !== 'localhost') {
+    import('./pwa-debug.js');
+}

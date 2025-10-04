@@ -5,8 +5,8 @@ function registerServiceWorker() {
         if (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
             console.log('Registering service worker...');
             
-            // Register with /build/ scope directly to avoid security issues
-            navigator.serviceWorker.register('/build/sw.js', { scope: '/build/' })
+            // Register with root scope to match manifest
+            navigator.serviceWorker.register('/build/sw.js', { scope: '/' })
                 .then(function(registration) {
                     console.log('ServiceWorker registration successful with scope: ', registration.scope);
                     
@@ -30,6 +30,51 @@ function registerServiceWorker() {
         console.log('ServiceWorker not supported by this browser');
     }
 }
+
+// PWA Install button functionality
+let deferredPrompt;
+const installButton = document.getElementById('installPWA');
+
+// Listen for the beforeinstallprompt event
+window.addEventListener('beforeinstallprompt', (e) => {
+    console.log('PWA install prompt available');
+    // Prevent Chrome 67 and earlier from automatically showing the prompt
+    e.preventDefault();
+    // Stash the event so it can be triggered later
+    deferredPrompt = e;
+    // Show the install button
+    if (installButton) {
+        installButton.style.display = 'block';
+        installButton.classList.remove('hidden');
+    }
+});
+
+// Handle install button click
+if (installButton) {
+    installButton.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            // Show the install prompt
+            deferredPrompt.prompt();
+            // Wait for the user to respond to the prompt
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`User response to the install prompt: ${outcome}`);
+            // Clear the deferredPrompt variable
+            deferredPrompt = null;
+            // Hide the install button
+            installButton.style.display = 'none';
+            installButton.classList.add('hidden');
+        }
+    });
+}
+
+// Listen for successful installation
+window.addEventListener('appinstalled', (e) => {
+    console.log('PWA was installed successfully');
+    if (installButton) {
+        installButton.style.display = 'none';
+        installButton.classList.add('hidden');
+    }
+});
 
 // Execute when DOM is loaded
 if (document.readyState === 'loading') {
