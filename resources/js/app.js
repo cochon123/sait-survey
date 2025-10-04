@@ -30,4 +30,4 @@ document.getElementById('installPWA')?.addEventListener('click', () => {
 });
 
 // Register service worker securely
-import './registerSW';
+import './registerSW.js';
