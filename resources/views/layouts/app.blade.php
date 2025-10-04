@@ -16,11 +16,45 @@
         
         <!-- PWA Meta Tags -->
         <link rel="manifest" href="{{ asset('build/manifest.webmanifest') }}">
+        
+        <!-- Standard PWA Meta Tags -->
         <meta name="mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-title" content="UniPulse">
         <meta name="theme-color" content="#6366f1">
+        <meta name="application-name" content="UniPulse">
+        
+        <!-- Apple/Safari Specific Meta Tags -->
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-title" content="UniPulse">
         <meta name="apple-mobile-web-app-status-bar-style" content="default">
-        <link rel="apple-touch-icon" href="/images/icons/icon-192x192.png">
+        <meta name="apple-touch-fullscreen" content="yes">
+        
+        <!-- Apple Touch Icons (Safari) -->
+        <link rel="apple-touch-icon" sizes="57x57" href="/images/icons/icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="/images/icons/icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="/images/icons/icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="/images/icons/icon-96x96.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="/images/icons/icon-128x128.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="/images/icons/icon-128x128.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="/images/icons/icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="/images/icons/icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/images/icons/icon-180x180.png">
+        
+        <!-- Apple Startup Images -->
+        <link rel="apple-touch-startup-image" href="/images/icons/icon-512x512.png">
+        
+        <!-- Firefox/Mozilla Specific -->
+        <meta name="msapplication-TileColor" content="#6366f1">
+        <meta name="msapplication-config" content="/browserconfig.xml">
+        
+        <!-- Additional PWA Meta Tags for better compatibility -->
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="mobile-web-app-capable" content="yes">
+        
+        <!-- Favicon -->
+        <link rel="icon" type="image/png" sizes="32x32" href="/images/icons/icon-72x72.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/images/icons/icon-72x72.png">
+        <link rel="shortcut icon" href="/favicon.ico">
         
 
     </head>
