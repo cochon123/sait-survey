@@ -15,7 +15,8 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         
         <!-- PWA Meta Tags -->
-        <link rel="manifest" href="{{ asset('build/manifest.webmanifest') }}">
+        <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
+        <link rel="manifest" href="{{ asset('build/manifest.webmanifest') }}">>
         
         <!-- Standard PWA Meta Tags -->
         <meta name="mobile-web-app-capable" content="yes">

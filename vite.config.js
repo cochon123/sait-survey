@@ -14,8 +14,10 @@ export default defineConfig({
             filename: 'sw.js',
             strategies: 'generateSW', // Use generateSW instead of injectManifest
             outDir: 'public', // Generate SW in public root instead of build folder
+            manifestFilename: 'manifest.webmanifest', // Generate at root
             workbox: {
                 globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+                globIgnores: ['**/manifest.webmanifest', '**/sw.js', '**/workbox-*.js'],
                 navigateFallback: null, // Disable for Laravel routes
                 skipWaiting: true,
                 clientsClaim: true,
