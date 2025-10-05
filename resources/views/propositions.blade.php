@@ -43,7 +43,7 @@
             <!-- App Header with Logo -->
             <div class="frosted-card p-6 mb-8">
                 <div class="flex items-center justify-center">
-                    <img src="{{ asset('image/SAIT-logo.webp') }}" alt="SAIT Logo" class="h-12 w-auto mr-4">
+                    <img src="{{ asset('image/campus_voice.png') }}" alt="Campus Voice Logo" class="h-12 w-auto mr-4">
                     <div>
                         <h1 class="text-2xl font-bold text-primary">Student Ideas</h1>
                         <p class="text-muted text-sm">Share your thoughts to improve SAIT!</p>
@@ -71,7 +71,7 @@
                         <div class="flex justify-between items-start mb-4">
                             <div class="flex-1">
                                 <div class="flex items-center mb-2">
-                                    <span class="font-medium text-primary">{{ $proposition->user->name }}</span>
+                                    <span class="font-medium text-primary">{{ $proposition->user->display_name }}</span>
                                     @if(Auth::user() && Auth::user()->is_admin ?? false)
                                         <span class="ml-2 text-sm text-muted">({{ $proposition->user->email }})</span>
                                     @endif
@@ -174,7 +174,7 @@
         <!-- Footer -->
         <footer class="frosted-card mt-12 py-8">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <p class="text-muted">&copy; 2024 SAIT Student Survey. Building a better student experience together.</p>
+                <p class="text-muted">&copy; 2024 Campus Voice. Building a better student experience together.</p>
             </div>
         </footer>
 

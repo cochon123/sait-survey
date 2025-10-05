@@ -20,7 +20,7 @@
         <meta name="apple-mobile-web-app-title" content="UniPulse">
         <meta name="theme-color" content="#6366f1">
         <meta name="apple-mobile-web-app-status-bar-style" content="default">
-        <link rel="apple-touch-icon" href="/images/icons/icon-192x192.png">
+        <link rel="apple-touch-icon" href="/image/campus_voice.png">
         
 
     </head>

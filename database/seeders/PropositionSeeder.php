@@ -19,10 +19,10 @@ class PropositionSeeder extends Seeder
         if ($users->isEmpty()) {
             // Create some test users if none exist
             $users = collect([
-                User::factory()->create(['name' => 'Alice Johnson', 'email' => 'alice@example.com']),
-                User::factory()->create(['name' => 'Bob Smith', 'email' => 'bob@example.com']),
-                User::factory()->create(['name' => 'Charlie Brown', 'email' => 'charlie@example.com']),
-                User::factory()->create(['name' => 'Diana Prince', 'email' => 'diana@example.com']),
+                User::factory()->create(['name' => 'Alice Johnson', 'nickname' => 'alice_j', 'email' => 'alice@example.com', 'profile_completed' => true]),
+                User::factory()->create(['name' => 'Bob Smith', 'nickname' => 'bobby_s', 'email' => 'bob@example.com', 'profile_completed' => true]),
+                User::factory()->create(['name' => 'Charlie Brown', 'nickname' => 'charlie_b', 'email' => 'charlie@example.com', 'profile_completed' => true]),
+                User::factory()->create(['name' => 'Diana Prince', 'nickname' => 'wonder_diana', 'email' => 'diana@example.com', 'profile_completed' => true]),
             ]);
         }
 

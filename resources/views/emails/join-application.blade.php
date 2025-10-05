@@ -11,6 +11,6 @@
     <p><strong>Program:</strong> {{ $program }}</p>
     <p><strong>Competence/Skill:</strong> {{ $competence ?: 'Not specified' }}</p>
     
-    <p>Thank you for your interest in the SAIT Student Survey project!</p>
+    <p>Thank you for your interest in the Campus Voice project!</p>
 </body>
 </html>

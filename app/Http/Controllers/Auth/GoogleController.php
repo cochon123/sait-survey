@@ -28,17 +28,41 @@ class GoogleController extends Controller
         try {
             $googleUser = Socialite::driver('google')->stateless()->user();
 
-            // Find existing user or create a new one
-            $user = User::firstOrCreate(
-                ['email' => $googleUser->getEmail()],
-                [
-                    'name' => $googleUser->getName(),
-                    'password' => bcrypt(Str::random(16)),
-                ]
-            );
+            // Find existing user by Google ID or email
+            $user = User::where('google_id', $googleUser->getId())
+                ->orWhere('email', $googleUser->getEmail())
+                ->first();
+
+            if ($user) {
+                // Update Google ID if not set
+                if (!$user->google_id) {
+                    $user->update(['google_id' => $googleUser->getId()]);
+                }
+                
+                Auth::login($user, true);
+                
+                // Redirect to profile completion if not completed
+                if (!$user->profile_completed) {
+                    return redirect()->route('profile.complete');
+                }
+                
+                return redirect()->route('propositions.index');
+            }
+
+            // Create new user
+            $user = User::create([
+                'name' => $googleUser->getName(),
+                'email' => $googleUser->getEmail(),
+                'google_id' => $googleUser->getId(),
+                'password' => bcrypt(Str::random(16)),
+                'profile_completed' => false,
+            ]);
 
             Auth::login($user, true);
-            return redirect()->route('propositions.index');
+            
+            // Redirect to profile completion for new users
+            return redirect()->route('profile.complete');
+            
         } catch (Exception $e) {
             return redirect('/login')->with('error', 'Something went wrong!');
         }

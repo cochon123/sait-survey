@@ -1,7 +1,7 @@
 <x-guest-layout>
     <div class="p-6 sm:p-8">
         <div class="text-center mb-8">
-            <img src="{{ asset('image/SAIT-logo.webp') }}" alt="SAIT logo" class="mx-auto h-20 w-auto mb-4 opacity-90">
+            <img src="{{ asset('image/campus_voice.png') }}" alt="Campus Voice logo" class="mx-auto h-20 w-auto mb-4 opacity-90">
             <h2 class="text-2xl font-extrabold text-primary">Se connecter à SAIT Survey</h2>
             <p class="mt-2 text-sm text-muted">Be one of the first to join the project</p>
         </div>

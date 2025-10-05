@@ -21,6 +21,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'nickname',
+        'profile_picture',
+        'profile_completed',
+        'google_id',
+        'is_admin',
     ];
 
     /**
@@ -43,7 +48,27 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'profile_completed' => 'boolean',
+            'is_admin' => 'boolean',
         ];
+    }
+
+    /**
+     * Get the user's display name (nickname or name).
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        return $this->nickname ?? $this->name;
+    }
+
+    /**
+     * Get the user's profile picture URL.
+     */
+    public function getProfilePictureUrlAttribute(): string
+    {
+        return $this->profile_picture 
+            ? asset('storage/' . $this->profile_picture)
+            : asset('image/default-avatar.svg');
     }
 
     public function propositions()

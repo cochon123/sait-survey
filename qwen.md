@@ -1,9 +1,9 @@
 ---
-description: Project overview and requirements for the SAIT Student Survey application
+description: Project overview and requirements for the Campus Voice application
 applyTo: '**'
 ---
 
-# SAIT Student Survey Project
+# Campus Voice Project
 
 A mobile-first survey application for students at SAIT university.
 

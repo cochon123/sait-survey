@@ -1,5 +1,5 @@
 ---
-description: Design system and visual guidelines for the SAIT Student Survey application
+description: Design system and visual guidelines for the Campus Voice application
 applyTo: '**'
 ---
 

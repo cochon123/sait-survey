@@ -46,7 +46,7 @@ export default defineConfig({
                 ]
             },
             manifest: {
-                name: 'UniPulse - SAIT Student Survey',
+                name: 'UniPulse - Campus Voice',
                 short_name: 'UniPulse',
                 description: 'Plateforme de sondage pour améliorer la vie étudiante à SAIT',
                 theme_color: '#6366f1',
@@ -60,55 +60,55 @@ export default defineConfig({
                 lang: 'fr',
                 icons: [
                     {
-                        src: '/images/icons/icon-72x72.png',
+                        src: '/image/campus_voice.png',
                         sizes: '72x72',
                         type: 'image/png',
                         purpose: 'any'
                     },
                     {
-                        src: '/images/icons/icon-96x96.png',
+                        src: '/image/campus_voice.png',
                         sizes: '96x96',
                         type: 'image/png',
                         purpose: 'any'
                     },
                     {
-                        src: '/images/icons/icon-128x128.png',
+                        src: '/image/campus_voice.png',
                         sizes: '128x128',
                         type: 'image/png',
                         purpose: 'any'
                     },
                     {
-                        src: '/images/icons/icon-144x144.png',
+                        src: '/image/campus_voice.png',
                         sizes: '144x144',
                         type: 'image/png',
                         purpose: 'any'
                     },
                     {
-                        src: '/images/icons/icon-152x152.png',
+                        src: '/image/campus_voice.png',
                         sizes: '152x152',
                         type: 'image/png',
                         purpose: 'any'
                     },
                     {
-                        src: '/images/icons/icon-180x180.png',
+                        src: '/image/campus_voice.png',
                         sizes: '180x180',
                         type: 'image/png',
                         purpose: 'any'
                     },
                     {
-                        src: '/images/icons/icon-192x192.png',
+                        src: '/image/campus_voice.png',
                         sizes: '192x192',
                         type: 'image/png',
                         purpose: 'any maskable'
                     },
                     {
-                        src: '/images/icons/icon-384x384.png',
+                        src: '/image/campus_voice.png',
                         sizes: '384x384',
                         type: 'image/png',
                         purpose: 'any'
                     },
                     {
-                        src: '/images/icons/icon-512x512.png',
+                        src: '/image/campus_voice.png',
                         sizes: '512x512',
                         type: 'image/png',
                         purpose: 'any maskable'
@@ -116,11 +116,11 @@ export default defineConfig({
                 ],
                 shortcuts: [
                     {
-                        name: 'Nouvelles propositions',
-                        short_name: 'Nouveau',
-                        description: 'Voir les dernières propositions',
+                        name: 'View Propositions',
+                        short_name: 'Propositions',
+                        description: 'View and vote on student propositions',
                         url: '/propositions',
-                        icons: [{ src: '/images/icons/icon-192x192.png', sizes: '192x192' }]
+                        icons: [{ src: '/image/campus_voice.png', sizes: '192x192' }]
                     }
                 ],
                 prefer_related_applications: false,

@@ -1,7 +1,7 @@
 <x-guest-layout>
     <div class="p-6 sm:p-8">
         <div class="text-center mb-8">
-            <img src="{{ asset('image/SAIT-logo.webp') }}" alt="SAIT logo" class="mx-auto h-20 w-auto mb-4 opacity-90">
+            <img src="{{ asset('image/campus_voice.png') }}" alt="Campus Voice logo" class="mx-auto h-20 w-auto mb-4 opacity-90">
             <h2 class="text-2xl font-extrabold text-primary mb-3">Mot de passe oublié</h2>
             <p class="text-sm text-muted">
                 {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}

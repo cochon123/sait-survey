@@ -25,8 +25,8 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center py-4">
                     <div class="flex items-center">
-                        <img src="{{ asset('image/SAIT-logo.webp') }}" alt="SAIT Logo" class="h-12 w-auto mr-4">
-                        <h1 class="text-2xl font-bold text-blue-900">SAIT Student Survey</h1>
+                        <img src="{{ asset('image/campus_voice.png') }}" alt="Campus Voice Logo" class="h-12 w-auto mr-4">
+                        <h1 class="text-2xl font-bold text-blue-900">Campus Voice</h1>
                     </div>
                     <nav class="hidden md:flex space-x-8">
                         <a href="{{ route('home') }}" class="text-blue-900 hover:text-blue-700 font-medium">Home</a>
@@ -113,8 +113,8 @@
         <footer class="bg-gray-800 text-white py-8 mt-16">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center">
-                    <img src="{{ asset('image/SAIT-logo.webp') }}" alt="SAIT Logo" class="h-12 w-auto mx-auto mb-4">
-                    <p class="text-gray-400">&copy; 2024 SAIT Student Survey. All rights reserved.</p>
+                    <img src="{{ asset('image/campus_voice.png') }}" alt="Campus Voice Logo" class="h-12 w-auto mx-auto mb-4">
+                    <p class="text-gray-400">&copy; 2024 Campus Voice. All rights reserved.</p>
                 </div>
             </div>
         </footer>

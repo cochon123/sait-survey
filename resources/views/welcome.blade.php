@@ -7,9 +7,9 @@
         <div class="max-w-4xl mx-auto">
             <!-- Logo and Title -->
             <div class="flex items-center justify-center mb-8">
-                <img src="{{ asset('image/SAIT-logo.webp') }}" alt="SAIT Logo" class="h-16 w-auto mr-6">
+                <img src="{{ asset('image/campus_voice.png') }}" alt="Campus Voice Logo" class="h-16 w-auto mr-6">
                 <div class="text-left">
-                    <h1 class="text-5xl font-bold text-primary mb-2">SAIT Student Survey</h1>
+                    <h1 class="text-5xl font-bold text-primary mb-2">Campus Voice</h1>
                     <p class="text-lg text-muted">Your voice shapes the future</p>
                 </div>
             </div>

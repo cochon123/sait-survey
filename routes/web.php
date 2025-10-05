@@ -24,10 +24,10 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/propositions', [PropositionController::class, 'index'])->name('propositions.index');
-Route::post('/propositions', [PropositionController::class, 'store'])->middleware('auth')->name('propositions.store');
-Route::post('/propositions/{proposition}/upvote', [PropositionController::class, 'upvote'])->middleware('auth')->name('propositions.upvote');
-Route::post('/propositions/{proposition}/downvote', [PropositionController::class, 'downvote'])->middleware('auth')->name('propositions.downvote');
-Route::delete('/propositions/{proposition}', [PropositionController::class, 'destroy'])->middleware('auth')->name('propositions.destroy');
+Route::post('/propositions', [PropositionController::class, 'store'])->middleware(['auth', 'profile.completed'])->name('propositions.store');
+Route::post('/propositions/{proposition}/upvote', [PropositionController::class, 'upvote'])->middleware(['auth', 'profile.completed'])->name('propositions.upvote');
+Route::post('/propositions/{proposition}/downvote', [PropositionController::class, 'downvote'])->middleware(['auth', 'profile.completed'])->name('propositions.downvote');
+Route::delete('/propositions/{proposition}', [PropositionController::class, 'destroy'])->middleware(['auth', 'profile.completed'])->name('propositions.destroy');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -38,5 +38,11 @@ Route::middleware('auth')->group(function () {
 // Routes pour l'authentification Google
 Route::get('/auth/google/redirect', [App\Http\Controllers\Auth\GoogleController::class, 'redirectToGoogle'])->name('google.redirect');
 Route::get('/auth/google/callback', [App\Http\Controllers\Auth\GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
+
+// Routes pour la complétion du profil
+Route::middleware('auth')->group(function () {
+    Route::get('/profile/complete', [App\Http\Controllers\Auth\ProfileSetupController::class, 'show'])->name('profile.complete');
+    Route::post('/profile/complete', [App\Http\Controllers\Auth\ProfileSetupController::class, 'store'])->name('profile.complete.store');
+});
 
 require __DIR__.'/auth.php';
