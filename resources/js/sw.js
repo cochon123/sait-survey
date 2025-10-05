@@ -3,16 +3,13 @@
 // But we keep this file for potential future customizations
 
 self.addEventListener('install', function(event) {
-    console.log('Service Worker installing.');
+    // Service Worker installing
 });
 
 self.addEventListener('activate', function(event) {
-    console.log('Service Worker activating.');
+    // Service Worker activating
 });
 
 self.addEventListener('fetch', function(event) {
-    // Log only in development to avoid console spam
-    if (self.location.hostname === 'localhost') {
-        console.log('Service Worker fetching:', event.request.url);
-    }
+    // Service Worker fetch handler
 });

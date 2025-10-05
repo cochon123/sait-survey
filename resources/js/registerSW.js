@@ -24,14 +24,12 @@ function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
         // Check if we're in a secure context (HTTPS or localhost)
         if (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-            console.log('Registering service worker...', browserInfo);
             
             // First, clean up any existing registrations with wrong scope
             navigator.serviceWorker.getRegistrations().then(function(registrations) {
                 // Unregister any SW not in root scope
                 registrations.forEach(function(registration) {
                     if (registration.scope !== location.origin + '/') {
-                        console.log('Cleaning up old registration:', registration.scope);
                         registration.unregister();
                     }
                 });
@@ -40,13 +38,11 @@ function registerServiceWorker() {
                 return navigator.serviceWorker.register('/sw.js', { scope: '/' });
             })
             .then(function(registration) {
-                console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                
                 // Browser-specific handling
                 if (browserInfo.isFirefox) {
-                    console.log('Firefox detected - PWA support available');
+                    // Firefox PWA support available
                 } else if (browserInfo.isSafari) {
-                    console.log('Safari detected - PWA support with limitations');
+                    // Safari PWA support with limitations
                 }
                 
                 // Check for updates
@@ -54,7 +50,6 @@ function registerServiceWorker() {
                     const newWorker = registration.installing;
                     newWorker.addEventListener('statechange', () => {
                         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            console.log('New content is available; please refresh.');
                             // Show update notification
                             showUpdateNotification();
                         }
@@ -62,20 +57,9 @@ function registerServiceWorker() {
                 });
             })
             .catch(function(err) {
-                console.error('ServiceWorker registration failed: ', err);
-                
-                // Browser-specific error handling
-                if (browserInfo.isFirefox) {
-                    console.log('Firefox SW registration failed - check manifest validity');
-                } else if (browserInfo.isSafari) {
-                    console.log('Safari SW registration failed - check HTTPS and manifest');
-                }
+                // Browser-specific error handling - silent fail in production
             });
-        } else {
-            console.log('ServiceWorker not registered: Insecure context (requires HTTPS or localhost)');
         }
-    } else {
-        console.log('ServiceWorker not supported by this browser');
     }
 }
 
@@ -200,7 +184,6 @@ function showSafariInstallInstructions() {
 
 // Listen for the beforeinstallprompt event (Chrome/Edge)
 window.addEventListener('beforeinstallprompt', (e) => {
-    console.log('PWA install prompt available');
     // Prevent Chrome 67 and earlier from automatically showing the prompt
     e.preventDefault();
     // Stash the event so it can be triggered later
@@ -220,7 +203,6 @@ if (installButton) {
             deferredPrompt.prompt();
             // Wait for the user to respond to the prompt
             const { outcome } = await deferredPrompt.userChoice;
-            console.log(`User response to the install prompt: ${outcome}`);
             // Clear the deferredPrompt variable
             deferredPrompt = null;
             // Hide the install button
@@ -232,7 +214,6 @@ if (installButton) {
 
 // Listen for successful installation
 window.addEventListener('appinstalled', (e) => {
-    console.log('PWA was installed successfully');
     if (installButton) {
         installButton.style.display = 'none';
         installButton.classList.add('hidden');

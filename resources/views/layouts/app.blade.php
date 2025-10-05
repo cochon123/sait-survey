@@ -59,19 +59,26 @@
         
 
     </head>
-    <body class="font-sans antialiased">
+    <body class="font-sans antialiased transition-all duration-300">
+        <!-- Theme Toggle -->
+        <button id="themeToggle" class="theme-toggle">
+            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"></path>
+            </svg>
+        </button>
+
         <!-- PWA Install Button -->
-        <button id="installPWA" class="fixed top-4 right-4 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow-lg transition-all duration-300 z-50 hidden" style="display: none;">
+        <button id="installPWA" class="fixed top-16 right-4 btn-secondary z-50 hidden" style="display: none;">
             <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
             Install App
         </button>
 
-        <div class="min-h-screen bg-gray-100 pb-12">
+        <div class="min-h-screen depth-layer-1 pb-12">
             <!-- Page Heading -->
             @hasSection('header')
-                <header class="bg-white shadow">
+                <header class="frosted-card mx-4 mt-4 mb-6">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                         @yield('header')
                     </div>
@@ -86,5 +93,30 @@
             <!-- Bottom Navigation -->
             @include('components.bottom-navigation')
         </div>
+
+        <!-- Theme Toggle Script -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const themeToggle = document.getElementById('themeToggle');
+                const body = document.body;
+                
+                // Check for saved theme preference or default to dark mode
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'light') {
+                    body.classList.add('light');
+                }
+                
+                themeToggle.addEventListener('click', function() {
+                    body.classList.toggle('light');
+                    
+                    // Save theme preference
+                    if (body.classList.contains('light')) {
+                        localStorage.setItem('theme', 'light');
+                    } else {
+                        localStorage.setItem('theme', 'dark');
+                    }
+                });
+            });
+        </script>
     </body>
 </html>

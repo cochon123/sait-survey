@@ -99,6 +99,7 @@ The database has been seeded with:
 2. do not run "npm run dev" (it is already running)
 3. use good laravel practice (Laravel12)
 4. do not self commit on git.
+5. The `.ssh` folder is in .gitignore - it's normal to have SSH keys locally for deployment, but they won't be committed to git
 
 ## Clean Commit Process
 When the user asks to "make a clean commit", follow this comprehensive cleanup process:

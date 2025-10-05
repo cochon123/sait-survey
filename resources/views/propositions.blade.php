@@ -30,81 +30,92 @@
           }
         </style>
     </head>
-    <body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen pb-16">
+    <body class="depth-layer-1 min-h-screen pb-24">
+        <!-- Theme Toggle -->
+        <button id="themeToggle" class="theme-toggle">
+            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"></path>
+            </svg>
+        </button>
+
         <!-- Main Content -->
         <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <!-- App Header with Logo -->
-            <div class="flex items-center justify-center mb-8">
-                <img src="{{ asset('image/SAIT-logo.webp') }}" alt="SAIT Logo" class="h-12 w-auto mr-4">
-                <div>
-                    <h1 class="text-2xl font-bold text-blue-900">Student Ideas</h1>
-                    <p class="text-gray-600 text-sm">Share your thoughts to improve SAIT!</p>
+            <div class="frosted-card p-6 mb-8">
+                <div class="flex items-center justify-center">
+                    <img src="{{ asset('image/SAIT-logo.webp') }}" alt="SAIT Logo" class="h-12 w-auto mr-4">
+                    <div>
+                        <h1 class="text-2xl font-bold text-primary">Student Ideas</h1>
+                        <p class="text-muted text-sm">Share your thoughts to improve SAIT!</p>
+                    </div>
                 </div>
             </div>
 
             <!-- Sorting Options -->
-            <div class="mb-6 flex justify-between items-center">
-                <div class="flex space-x-4">
-                    <button id="sort-recent" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">Most Recent</button>
-                    <button id="sort-top" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">Top Voted</button>
-                </div>
-                <div class="text-sm text-gray-500">
-                    <span id="proposition-count">{{ $propositions->count() }}</span> propositions
+            <div class="frosted-card p-4 mb-6">
+                <div class="flex justify-between items-center">
+                    <div class="flex space-x-3">
+                        <button id="sort-recent" class="btn-primary px-4 py-2 text-sm">Most Recent</button>
+                        <button id="sort-top" class="btn-secondary px-4 py-2 text-sm">Top Voted</button>
+                    </div>
+                    <div class="text-sm text-muted">
+                        <span id="proposition-count">{{ $propositions->count() }}</span> propositions
+                    </div>
                 </div>
             </div>
 
             <!-- Propositions List -->
-            <div id="propositions-list" class="space-y-6">
+            <div id="propositions-list" class="space-y-4">
                 @forelse($propositions as $proposition)
-                    <div class="bg-white rounded-lg shadow-md p-6 proposition-card @if(session('new_proposition_id') == $proposition->id) border-2 border-blue-500 bg-blue-50 @endif" data-id="{{ $proposition->id }}" data-upvotes="{{ $proposition->upvotes }}" data-downvotes="{{ $proposition->downvotes }}" data-created="{{ $proposition->created_at->timestamp }}">
+                    <div class="frosted-card p-6 proposition-card transition-all duration-300 hover:shadow-frosted-m @if(session('new_proposition_id') == $proposition->id) ring-2 ring-brand @endif" data-id="{{ $proposition->id }}" data-upvotes="{{ $proposition->upvotes }}" data-downvotes="{{ $proposition->downvotes }}" data-created="{{ $proposition->created_at->timestamp }}">
                         <div class="flex justify-between items-start mb-4">
                             <div class="flex-1">
                                 <div class="flex items-center mb-2">
-                                    <span class="font-medium text-gray-900">{{ $proposition->user->name }}</span>
+                                    <span class="font-medium text-primary">{{ $proposition->user->name }}</span>
                                     @if(Auth::user() && Auth::user()->is_admin ?? false)
-                                        <span class="ml-2 text-sm text-gray-500">({{ $proposition->user->email }})</span>
+                                        <span class="ml-2 text-sm text-muted">({{ $proposition->user->email }})</span>
                                     @endif
-                                    <span class="ml-2 text-xs text-gray-500">{{ $proposition->created_at->diffForHumans() }}</span>
+                                    <span class="ml-2 text-xs text-muted">{{ $proposition->created_at->diffForHumans() }}</span>
                                 </div>
-                                <p class="text-gray-700 mb-3">{{ $proposition->content }}</p>
+                                <p class="text-primary mb-3">{{ $proposition->content }}</p>
 
                             </div>
                             <div class="flex flex-col items-center space-y-2 ml-4">
                                 @auth
-                                    <button class="upvote-btn flex items-center space-x-1 px-3 py-2 bg-green-100 hover:bg-green-200 rounded-lg transition-all duration-200 transform hover:scale-105" data-id="{{ $proposition->id }}">
-                                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <button class="upvote-btn frosted-input flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 transform hover:scale-105 hover:shadow-frosted-s" data-id="{{ $proposition->id }}">
+                                        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
                                         </svg>
-                                        <span class="upvote-count text-sm font-medium text-green-700">{{ $proposition->upvotes }}</span>
+                                        <span class="upvote-count text-sm font-semibold text-green-500">{{ $proposition->upvotes }}</span>
                                     </button>
-                                    <button class="downvote-btn flex items-center space-x-1 px-3 py-2 bg-red-100 hover:bg-red-200 rounded-lg transition-all duration-200 transform hover:scale-105" data-id="{{ $proposition->id }}">
-                                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <button class="downvote-btn frosted-input flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 transform hover:scale-105 hover:shadow-frosted-s" data-id="{{ $proposition->id }}">
+                                        <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                         </svg>
-                                        <span class="downvote-count text-sm font-medium text-red-700">{{ $proposition->downvotes }}</span>
+                                        <span class="downvote-count text-sm font-semibold text-red-500">{{ $proposition->downvotes }}</span>
                                     </button>
                                     @if($proposition->user_id === Auth::id())
-                                        <button class="delete-btn flex items-center justify-center px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-all duration-200 transform hover:scale-105" data-id="{{ $proposition->id }}" title="Delete proposition">
-                                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <button class="delete-btn frosted-input flex items-center justify-center p-3 rounded-xl transition-all duration-200 transform hover:scale-105 hover:shadow-frosted-s" data-id="{{ $proposition->id }}" title="Delete proposition">
+                                            <svg class="w-5 h-5 text-muted hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                             </svg>
                                         </button>
                                     @endif
                                 @else
-                                    <div class="text-center text-sm text-gray-500">
-                                        <p>Login to vote</p>
-                                        <div class="flex flex-col space-y-1 mt-2">
-                                            <div class="flex items-center space-x-1 px-3 py-2 bg-gray-100 rounded-lg opacity-50">
-                                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="text-center text-sm text-muted">
+                                        <p class="mb-2">Login to vote</p>
+                                        <div class="flex flex-col space-y-2">
+                                            <div class="frosted-input flex items-center space-x-2 px-4 py-2 rounded-xl opacity-60 cursor-not-allowed">
+                                                <svg class="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
                                                 </svg>
-                                                <span class="text-sm font-medium text-gray-500">{{ $proposition->upvotes }}</span>
+                                                <span class="text-sm font-medium text-muted">{{ $proposition->upvotes }}</span>
                                             </div>
-                                            <div class="flex items-center space-x-1 px-3 py-2 bg-gray-100 rounded-lg opacity-50">
-                                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <div class="frosted-input flex items-center space-x-2 px-4 py-2 rounded-xl opacity-60 cursor-not-allowed">
+                                                <svg class="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                                 </svg>
-                                                <span class="text-sm font-medium text-gray-500">{{ $proposition->downvotes }}</span>
+                                                <span class="text-sm font-medium text-muted">{{ $proposition->downvotes }}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -113,65 +124,45 @@
                         </div>
                     </div>
                 @empty
-                    <div class="bg-white rounded-lg shadow-md p-8 text-center">
-                        <p class="text-gray-500 text-lg">No propositions yet. Be the first to share your idea!</p>
+                    <div class="frosted-card p-12 text-center">
+                        <svg class="w-16 h-16 mx-auto mb-4 text-muted opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                        <p class="text-muted text-lg mb-2">No propositions yet</p>
+                        <p class="text-muted text-sm">Be the first to share your idea!</p>
                     </div>
                 @endforelse
             </div>
 
-<!-- 
-<div class="mt-12 bg-white rounded-full shadow-md p-2">
-                <div class="flex items-center space-x-3">
-                                            <form id="proposition-form" method="POST" action="http://localhost:8000/propositions" class="flex-1 flex items-center space-x-1">
-                            <input type="hidden" name="_token" value="X0JwP3qeMR41XNZ97b3SaBtjPKpi6A010EBA5vyP" autocomplete="off">
-                            <textarea name="content" id="content" rows="1" placeholder="Share your idea to improve SAIT..." maxlength="1000" required="" style="min-height:48px;max-height:120px;" class="flex-1 px-3 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 placeholder-gray-400 resize-none"></textarea>
-                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-colors duration-200 flex-shrink-0">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                                </svg>
-                            </button>
-                        </form>
-                                    </div>
-                
-            </div>
--->
-
             <!-- New Proposition Form -->
-            <div class="fixed bottom-0 left-0 right-0 bg-white p-4 shadow-lg border-t border-gray-200 z-50">
+            <div class="fixed bottom-0 left-0 right-0 frosted-card border-t border-opacity-20 p-4 z-50">
                 <div class="max-w-4xl mx-auto">
                     @auth
-                        <form id="proposition-form" method="POST" action="{{ route('propositions.store') }}" class="flex items-center">
+                        <form id="proposition-form" method="POST" action="{{ route('propositions.store') }}" class="flex items-center gap-3">
                             @csrf
-                            <input type="text" name="content" id="content" placeholder="Type your message..." maxlength="1000" required class="flex-1 border rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <button type="submit" class="bg-blue-500 text-white rounded-full p-2 ml-2 hover:bg-blue-600 focus:outline-none">
-                                <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff">
-                                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                                    <g id="SVGRepo_iconCarrier">
-                                        <path d="M11.5003 12H5.41872M5.24634 12.7972L4.24158 15.7986C3.69128 17.4424 3.41613 18.2643 3.61359 18.7704C3.78506 19.21 4.15335 19.5432 4.6078 19.6701C5.13111 19.8161 5.92151 19.4604 7.50231 18.7491L17.6367 14.1886C19.1797 13.4942 19.9512 13.1471 20.1896 12.6648C20.3968 12.2458 20.3968 11.7541 20.1896 11.3351C19.9512 10.8529 19.1797 10.5057 17.6367 9.81135L7.48483 5.24303C5.90879 4.53382 5.12078 4.17921 4.59799 4.32468C4.14397 4.45101 3.77572 4.78336 3.60365 5.22209C3.40551 5.72728 3.67772 6.54741 4.22215 8.18767L5.24829 11.2793C5.34179 11.561 5.38855 11.7019 5.407 11.8459C5.42338 11.9738 5.42321 12.1032 5.40651 12.231C5.38768 12.375 5.34057 12.5157 5.24634 12.7972Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                                    </g>
+                            <input type="text" name="content" id="content" placeholder="Share your idea to improve SAIT..." maxlength="1000" required class="form-input flex-1">
+                            <button type="submit" class="btn-primary p-3 rounded-full flex-shrink-0">
+                                <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                             </button>
                         </form>
                     @else
-                        <div class="flex items-center">
+                        <div class="flex items-center gap-3">
                             <input
                                 type="text"
                                 id="guest-proposition-input"
-                                placeholder="Type your message..."
+                                placeholder="Login to share your ideas..."
                                 maxlength="1000"
-                                class="flex-1 border rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                class="form-input flex-1 cursor-not-allowed opacity-70"
+                                readonly
                             >
                             <button
                                 id="guest-send-btn"
-                                class="bg-blue-500 text-white rounded-full p-2 ml-2 hover:bg-blue-600 focus:outline-none"
+                                class="btn-secondary p-3 rounded-full flex-shrink-0"
                             >
-                                <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff">
-                                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                                    <g id="SVGRepo_iconCarrier">
-                                        <path d="M11.5003 12H5.41872M5.24634 12.7972L4.24158 15.7986C3.69128 17.4424 3.41613 18.2643 3.61359 18.7704C3.78506 19.21 4.15335 19.5432 4.6078 19.6701C5.13111 19.8161 5.92151 19.4604 7.50231 18.7491L17.6367 14.1886C19.1797 13.4942 19.9512 13.1471 20.1896 12.6648C20.3968 12.2458 20.3968 11.7541 20.1896 11.3351C19.9512 10.8529 19.1797 10.5057 17.6367 9.81135L7.48483 5.24303C5.90879 4.53382 5.12078 4.17921 4.59799 4.32468C4.14397 4.45101 3.77572 4.78336 3.60365 5.22209C3.40551 5.72728 3.67772 6.54741 4.22215 8.18767L5.24829 11.2793C5.34179 11.561 5.38855 11.7019 5.407 11.8459C5.42338 11.9738 5.42321 12.1032 5.40651 12.231C5.38768 12.375 5.34057 12.5157 5.24634 12.7972Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                                    </g>
+                                <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                             </button>
                         </div>
@@ -181,9 +172,9 @@
         </main>
 
         <!-- Footer -->
-        <footer class="bg-blue-900 text-white py-8 mt-12">
+        <footer class="frosted-card mt-12 py-8">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <p>&copy; 2024 SAIT Student Survey. Building a better student experience together.</p>
+                <p class="text-muted">&copy; 2024 SAIT Student Survey. Building a better student experience together.</p>
             </div>
         </footer>
 
@@ -677,18 +668,43 @@
 
                 {{-- One-per-day warning modal --}}
                 <div id="one-day-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-60 hidden">
-                    <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
-                        <div class="p-6">
-                            <h3 class="text-lg font-bold text-gray-900">Unauthorized Action</h3>
-                            <p class="mt-3 text-sm text-gray-700">You can not post more than one proposal per day. Please come back tomorrow to share a new idea.</p>
-                            <div class="mt-6 text-right">
-                                <button id="one-day-close" class="inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">Close</button>
-                            </div>
+                    <div class="frosted-card max-w-lg w-full mx-4 p-8">
+                        <h3 class="text-lg font-bold text-primary mb-3">Unauthorized Action</h3>
+                        <p class="text-muted mb-6">You can not post more than one proposal per day. Please come back tomorrow to share a new idea.</p>
+                        <div class="text-right">
+                            <button id="one-day-close" class="btn-secondary">Close</button>
                         </div>
                     </div>
                 </div>
 
         <!-- Bottom Navigation -->
         @include('components.bottom-navigation')
+
+        <!-- Theme Toggle Script -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const themeToggle = document.getElementById('themeToggle');
+                const body = document.body;
+                
+                // Check for saved theme preference or default to dark mode
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'light') {
+                    body.classList.add('light');
+                }
+                
+                if (themeToggle) {
+                    themeToggle.addEventListener('click', function() {
+                        body.classList.toggle('light');
+                        
+                        // Save theme preference
+                        if (body.classList.contains('light')) {
+                            localStorage.setItem('theme', 'light');
+                        } else {
+                            localStorage.setItem('theme', 'dark');
+                        }
+                    });
+                }
+            });
+        </script>
     </body>
 </html>
