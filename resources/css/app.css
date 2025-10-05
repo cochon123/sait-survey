@@ -155,28 +155,25 @@ body.light .form-input {
   box-shadow: var(--shadow-s), 0 0 0 3px hsla(var(--hue-b), var(--sat-b), 55%, 0.1);
 }
 
-/* Theme toggle */
-.theme-toggle {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  z-index: 50;
-  background: hsla(var(--hue-n), var(--sat-n), 10%, 0.9);
-  border: 1px solid hsla(var(--hue-n), var(--sat-n), 50%, 0.2);
-  border-radius: 0.5rem;
-  padding: 0.5rem;
-  backdrop-filter: blur(10px);
-  cursor: pointer;
-  transition: all 0.2s ease;
+/* Sticky elements */
+.sticky {
+  position: sticky;
+  backdrop-filter: blur(15px);
 }
 
-body.light .theme-toggle {
-  background: hsla(var(--hue-n), var(--sat-n), 90%, 0.9);
+/* Sticky header, input, and filter - transparent with backdrop blur only */
+.sticky-header,
+.sticky-input,
+.sticky-filter {
+  background: hsla(var(--hue-n), var(--sat-n), 10%, 0.7);
+  backdrop-filter: blur(20px);
+  border-radius: 1rem;
 }
 
-.theme-toggle:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-s);
+body.light .sticky-header,
+body.light .sticky-input,
+body.light .sticky-filter {
+  background: hsla(var(--hue-n), var(--sat-n), 90%, 0.7);
 }
 
 /* Smooth transitions for theme switching */

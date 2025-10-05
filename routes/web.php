@@ -29,7 +29,7 @@ Route::post('/propositions/{proposition}/upvote', [PropositionController::class,
 Route::post('/propositions/{proposition}/downvote', [PropositionController::class, 'downvote'])->middleware(['auth', 'profile.completed'])->name('propositions.downvote');
 Route::delete('/propositions/{proposition}', [PropositionController::class, 'destroy'])->middleware(['auth', 'profile.completed'])->name('propositions.destroy');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'profile.completed'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

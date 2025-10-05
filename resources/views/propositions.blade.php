@@ -31,35 +31,59 @@
         </style>
     </head>
     <body class="depth-layer-1 min-h-screen pb-24">
-        <!-- Theme Toggle -->
-        <button id="themeToggle" class="theme-toggle">
-            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"></path>
-            </svg>
-        </button>
-
         <!-- Main Content -->
         <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <!-- App Header with Logo -->
-            <div class="frosted-card p-6 mb-8">
-                <div class="flex items-center justify-center">
-                    <img src="{{ asset('image/campus_voice.png') }}" alt="Campus Voice Logo" class="h-12 w-auto mr-4">
-                    <div>
-                        <h1 class="text-2xl font-bold text-primary">Student Ideas</h1>
-                        <p class="text-muted text-sm">Share your thoughts to improve SAIT!</p>
-                    </div>
+            <!-- Header with Logo and Ideas -->
+            <div class="sticky-header p-4 mb-6 sticky top-0 z-40">
+                <div class="flex items-center gap-3">
+                    <img src="{{ asset('image/campus_voice.png') }}" alt="Campus Voice Logo" class="h-10 w-auto">
+                    <h1 class="text-xl font-bold text-primary">Ideas</h1>
                 </div>
             </div>
 
-            <!-- Sorting Options -->
-            <div class="frosted-card p-4 mb-6">
-                <div class="flex justify-between items-center">
-                    <div class="flex space-x-3">
-                        <button id="sort-recent" class="btn-primary px-4 py-2 text-sm">Most Recent</button>
-                        <button id="sort-top" class="btn-secondary px-4 py-2 text-sm">Top Voted</button>
+            <!-- New Proposition Form at Top -->
+            <div class="sticky-input p-4 mb-6 sticky top-20 z-30">
+                @auth
+                    <form id="proposition-form" method="POST" action="{{ route('propositions.store') }}" class="flex items-center gap-3">
+                        @csrf
+                        <input type="text" name="content" id="content" placeholder="Share your idea to improve SAIT..." maxlength="1000" required class="form-input flex-1">
+                        <button type="submit" class="btn-primary p-3 rounded-full flex-shrink-0">
+                            <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </form>
+                @else
+                    <div class="flex items-center gap-3">
+                        <input
+                            type="text"
+                            id="guest-proposition-input"
+                            placeholder="Login to share your ideas..."
+                            maxlength="1000"
+                            class="form-input flex-1 cursor-not-allowed opacity-70"
+                            readonly
+                        >
+                        <button
+                            id="guest-send-btn"
+                            class="btn-secondary p-3 rounded-full flex-shrink-0"
+                        >
+                            <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
                     </div>
-                    <div class="text-sm text-muted">
-                        <span id="proposition-count">{{ $propositions->count() }}</span> propositions
+                @endauth
+            </div>
+
+            <!-- Sorting Options -->
+            <div class="sticky-filter p-4 mb-6 sticky top-36 z-20">
+                <div class="flex justify-between items-center gap-3">
+                    <div class="flex gap-2">
+                        <button id="sort-recent" class="btn-primary px-3 py-1.5 text-xs font-medium whitespace-nowrap">Recent</button>
+                        <button id="sort-top" class="btn-secondary px-3 py-1.5 text-xs font-medium whitespace-nowrap">Top</button>
+                    </div>
+                    <div class="text-xs text-muted whitespace-nowrap">
+                        <span id="proposition-count">{{ $propositions->count() }}</span> ideas
                     </div>
                 </div>
             </div>
@@ -132,42 +156,6 @@
                         <p class="text-muted text-sm">Be the first to share your idea!</p>
                     </div>
                 @endforelse
-            </div>
-
-            <!-- New Proposition Form -->
-            <div class="fixed bottom-0 left-0 right-0 frosted-card border-t border-opacity-20 p-4 z-50">
-                <div class="max-w-4xl mx-auto">
-                    @auth
-                        <form id="proposition-form" method="POST" action="{{ route('propositions.store') }}" class="flex items-center gap-3">
-                            @csrf
-                            <input type="text" name="content" id="content" placeholder="Share your idea to improve SAIT..." maxlength="1000" required class="form-input flex-1">
-                            <button type="submit" class="btn-primary p-3 rounded-full flex-shrink-0">
-                                <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </button>
-                        </form>
-                    @else
-                        <div class="flex items-center gap-3">
-                            <input
-                                type="text"
-                                id="guest-proposition-input"
-                                placeholder="Login to share your ideas..."
-                                maxlength="1000"
-                                class="form-input flex-1 cursor-not-allowed opacity-70"
-                                readonly
-                            >
-                            <button
-                                id="guest-send-btn"
-                                class="btn-secondary p-3 rounded-full flex-shrink-0"
-                            >
-                                <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </button>
-                        </div>
-                    @endauth
-                </div>
             </div>
         </main>
 
@@ -469,8 +457,10 @@
                 }
 
                 sortRecentBtn.addEventListener('click', function() {
-                    sortRecentBtn.className = 'px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors';
-                    sortTopBtn.className = 'px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors';
+                    sortRecentBtn.classList.remove('btn-secondary');
+                    sortRecentBtn.classList.add('btn-primary');
+                    sortTopBtn.classList.remove('btn-primary');
+                    sortTopBtn.classList.add('btn-secondary');
 
                     sortPropositions((a, b) => {
                         return parseInt(b.dataset.created) - parseInt(a.dataset.created);
@@ -478,8 +468,10 @@
                 });
 
                 sortTopBtn.addEventListener('click', function() {
-                    sortTopBtn.className = 'px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors';
-                    sortRecentBtn.className = 'px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors';
+                    sortTopBtn.classList.remove('btn-secondary');
+                    sortTopBtn.classList.add('btn-primary');
+                    sortRecentBtn.classList.remove('btn-primary');
+                    sortRecentBtn.classList.add('btn-secondary');
 
                     sortPropositions((a, b) => {
                         const aScore = parseInt(a.dataset.upvotes) - parseInt(a.dataset.downvotes);
@@ -680,29 +672,19 @@
         <!-- Bottom Navigation -->
         @include('components.bottom-navigation')
 
-        <!-- Theme Toggle Script -->
+        <!-- Theme Detection Script -->
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const themeToggle = document.getElementById('themeToggle');
-                const body = document.body;
-                
-                // Check for saved theme preference or default to dark mode
-                const savedTheme = localStorage.getItem('theme');
-                if (savedTheme === 'light') {
-                    body.classList.add('light');
-                }
-                
-                if (themeToggle) {
-                    themeToggle.addEventListener('click', function() {
-                        body.classList.toggle('light');
-                        
-                        // Save theme preference
-                        if (body.classList.contains('light')) {
-                            localStorage.setItem('theme', 'light');
-                        } else {
-                            localStorage.setItem('theme', 'dark');
-                        }
-                    });
+            // Automatically detect and apply system theme preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                document.body.classList.add('light');
+            }
+            
+            // Listen for theme changes
+            window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
+                if (e.matches) {
+                    document.body.classList.add('light');
+                } else {
+                    document.body.classList.remove('light');
                 }
             });
         </script>
