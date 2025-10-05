@@ -16,7 +16,7 @@
         
         <!-- PWA Meta Tags -->
         <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
-        <link rel="manifest" href="{{ asset('build/manifest.webmanifest') }}">>
+        <link rel="manifest" href="{{ asset('build/manifest.webmanifest') }}">
         
         <!-- Standard PWA Meta Tags -->
         <meta name="mobile-web-app-capable" content="yes">
@@ -55,7 +55,7 @@
         <!-- Favicon -->
         <link rel="icon" type="image/png" sizes="32x32" href="/images/icons/icon-72x72.png">
         <link rel="icon" type="image/png" sizes="16x16" href="/images/icons/icon-72x72.png">
-        <link rel="shortcut icon" href="/favicon.ico">>
+        <link rel="shortcut icon" href="/favicon.ico"
         
 
     </head>
@@ -68,9 +68,7 @@
             Install App
         </button>
 
-        <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
-
+        <div class="min-h-screen bg-gray-100 pb-12">
             <!-- Page Heading -->
             @hasSection('header')
                 <header class="bg-white shadow">
@@ -84,6 +82,9 @@
             <main>
                 @yield('content')
             </main>
+
+            <!-- Bottom Navigation -->
+            @include('components.bottom-navigation')
         </div>
     </body>
 </html>

@@ -99,3 +99,43 @@ The database has been seeded with:
 2. do not run "npm run dev" (it is already running)
 3. use good laravel practice (Laravel12)
 4. do not self commit on git.
+
+## Clean Commit Process
+When the user asks to "make a clean commit", follow this comprehensive cleanup process:
+
+### 1. Security Analysis
+- Run security scanning tools (like Codacy with Trivy) to identify vulnerabilities
+- Check for exposed API keys, secrets, or sensitive data in code
+- Verify proper input validation and sanitization
+- Review authentication and authorization mechanisms
+
+### 2. Code Cleanup
+- Remove all console.log(), var_dump(), dd(), dump() and other debug statements
+- Remove commented-out code blocks that are no longer needed
+- Remove temporary files and unused imports
+- Clean up unnecessary whitespace and formatting inconsistencies
+- Remove any TODO comments that have been completed
+
+### 3. File Organization
+- Remove test files that were created during development but not needed in production
+- Clean up temporary or backup files (*.bak, *.tmp, etc.)
+- Ensure proper file structure and organization
+- Remove empty directories or unused assets
+
+### 4. Code Quality
+- Check for unused variables, functions, and classes
+- Ensure consistent code formatting
+- Verify proper error handling
+- Remove redundant or duplicate code
+
+### 5. Documentation
+- Update comments to reflect current functionality
+- Ensure README and documentation are current
+- Remove outdated or misleading comments
+
+### 6. Final Verification
+- Run basic functionality tests to ensure nothing is broken
+- Verify all routes and main features still work
+- Check that no critical functionality was accidentally removed
+
+Only after completing ALL these steps should the commit be made with a clear, descriptive commit message.

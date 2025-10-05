@@ -9,6 +9,11 @@ Route::get('/', function () {
         return redirect()->route('propositions.index');
     }
     return view('welcome');
+})->name('root');
+
+// Route pour la landing page accessible à tous
+Route::get('/welcome', function () {
+    return view('welcome');
 })->name('home');
 
 Route::get('/join', [App\Http\Controllers\JoinController::class, 'index'])->name('join');

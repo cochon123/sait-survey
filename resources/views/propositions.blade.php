@@ -30,52 +30,16 @@
           }
         </style>
     </head>
-    <body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen">
-        <!-- Header -->
-        <header class="bg-white shadow-lg">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center py-4">
-                    <div class="flex items-center">
-                        <img src="{{ asset('image/SAIT-logo.webp') }}" alt="SAIT Logo" class="h-10 w-auto">
-                    </div>
-                    <nav class="flex items-center space-x-6">
-                        <a href="{{ route('home') }}" class="text-blue-600 hover:text-blue-800 transition-colors" title="Home">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M3 12L5 10M5 10L12 3L19 10M5 10V20C5 20.5523 5.44772 21 6 21H9M19 10L21 12M19 10V20C19 20.5523 18.5523 21 18 21H15M9 21C9.55228 21 10 20.5523 10 20V16C10 15.4477 10.4477 15 11 15H13C13.5523 15 14 15.4477 14 16V20C14 20.5523 14.4477 21 15 21M9 21H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </a>
-                        <a href="{{ route('propositions.index') }}" class="text-blue-600 hover:text-blue-800 transition-colors" title="Propositions">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M7 13L10 16L17 9M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </a>
-                        @auth
-                            <span class="text-gray-600 text-sm">{{ Auth::user()->name }}</span>
-                            <form method="POST" action="{{ route('logout') }}" class="inline">
-                                @csrf
-                                <button type="submit" class="text-red-600 hover:text-red-800 transition-colors" title="Logout">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9M16 17L21 12M21 12L16 7M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                </button>
-                            </form>
-                        @else
-                            <a href="{{ route('login') }}" class="text-blue-600 hover:text-blue-800 transition-colors" title="Login">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M15 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H15M10 17L15 12M15 12L10 7M15 12H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </a>
-                        @endauth
-                    </nav>
-                </div>
-            </div>
-        </header>
-
+    <body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen pb-16">
         <!-- Main Content -->
-        <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24">
-            <div class="mb-8">
-                <h2 class="text-3xl font-bold text-blue-900 mb-4">Student Propositions</h2>
-                <p class="text-gray-600">Share your ideas to improve the SAIT student experience!</p>
+        <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- App Header with Logo -->
+            <div class="flex items-center justify-center mb-8">
+                <img src="{{ asset('image/SAIT-logo.webp') }}" alt="SAIT Logo" class="h-12 w-auto mr-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-blue-900">Student Ideas</h1>
+                    <p class="text-gray-600 text-sm">Share your thoughts to improve SAIT!</p>
+                </div>
             </div>
 
             <!-- Sorting Options -->
@@ -723,5 +687,8 @@
                         </div>
                     </div>
                 </div>
+
+        <!-- Bottom Navigation -->
+        @include('components.bottom-navigation')
     </body>
 </html>
