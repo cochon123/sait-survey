@@ -30,6 +30,11 @@ class Proposition extends Model
         return $this->hasMany(PropositionVote::class);
     }
 
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+
     /**
      * Check if the authenticated user has voted on this proposition
      */

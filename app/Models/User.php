@@ -80,4 +80,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(PropositionVote::class);
     }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 }

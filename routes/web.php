@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropositionController;
+use App\Http\Controllers\CommentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -28,6 +29,10 @@ Route::post('/propositions', [PropositionController::class, 'store'])->middlewar
 Route::post('/propositions/{proposition}/upvote', [PropositionController::class, 'upvote'])->middleware(['auth', 'profile.completed'])->name('propositions.upvote');
 Route::post('/propositions/{proposition}/downvote', [PropositionController::class, 'downvote'])->middleware(['auth', 'profile.completed'])->name('propositions.downvote');
 Route::delete('/propositions/{proposition}', [PropositionController::class, 'destroy'])->middleware(['auth', 'profile.completed'])->name('propositions.destroy');
+
+// Routes pour les commentaires
+Route::post('/propositions/{proposition}/comments', [CommentController::class, 'store'])->middleware(['auth', 'profile.completed'])->name('comments.store');
+Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->middleware(['auth', 'profile.completed'])->name('comments.destroy');
 
 Route::middleware(['auth', 'profile.completed'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

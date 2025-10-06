@@ -11,7 +11,7 @@ class PropositionController extends Controller
 {
     public function index()
     {
-        $propositions = Proposition::with('user')
+        $propositions = Proposition::with(['user', 'comments.user'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -36,7 +36,7 @@ class PropositionController extends Controller
             }
 
             // Re-fetch propositions to include the new one
-            $propositions = Proposition::with('user')
+            $propositions = Proposition::with(['user', 'comments.user'])
                 ->orderBy('created_at', 'desc')
                 ->get();
         }
