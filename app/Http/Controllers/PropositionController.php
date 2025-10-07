@@ -50,7 +50,7 @@ class PropositionController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'html' => view('partials.propositions-list', compact('propositions'))->render(),
+                'html' => view('propositions.partials._propositions-list', compact('propositions'))->render(),
                 'hasMore' => $propositions->hasMorePages(),
                 'nextPage' => $propositions->currentPage() + 1,
                 'total' => $propositions->total()
@@ -77,7 +77,7 @@ class PropositionController extends Controller
         $propositions = $query->paginate($perPage, ['*'], 'page', $page);
 
         return response()->json([
-            'html' => view('partials.propositions-list', compact('propositions'))->render(),
+            'html' => view('propositions.partials._propositions-list', compact('propositions'))->render(),
             'hasMore' => $propositions->hasMorePages(),
             'nextPage' => $propositions->currentPage() + 1,
             'total' => $propositions->total()

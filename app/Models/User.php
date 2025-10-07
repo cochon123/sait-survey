@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -23,7 +22,6 @@ class User extends Authenticatable
         'password',
         'nickname',
         'profile_picture',
-        'profile_completed',
         'google_id',
         'is_admin',
     ];
@@ -48,9 +46,16 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'profile_completed' => 'boolean',
             'is_admin' => 'boolean',
         ];
+    }
+
+    /**
+     * Determine if the user has completed their profile.
+     */
+    public function getProfileCompletedAttribute(): bool
+    {
+        return !empty($this->nickname);
     }
 
     /**

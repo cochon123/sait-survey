@@ -47,6 +47,12 @@ Route::get('/auth/google/redirect', [App\Http\Controllers\Auth\GoogleController:
 Route::get('/auth/google/callback', [App\Http\Controllers\Auth\GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
 
 // Routes pour la complétion du profil
+// Routes pour la complétion du profil
+Route::middleware('auth')->group(function () {
+    Route::get('/profile/complete', [App\Http\Controllers\ProfileCompletionController::class, 'create'])->name('profile.complete');
+    Route::post('/profile/complete', [App\Http\Controllers\ProfileCompletionController::class, 'store'])->name('profile.complete.store');
+});
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile/complete', [App\Http\Controllers\Auth\ProfileSetupController::class, 'show'])->name('profile.complete');
     Route::post('/profile/complete', [App\Http\Controllers\Auth\ProfileSetupController::class, 'store'])->name('profile.complete.store');
