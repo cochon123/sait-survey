@@ -4,9 +4,10 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropositionController;
 use App\Http\Controllers\CommentController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
-    if (auth()->check()) {
+    if (Auth::check()) {
         return redirect()->route('propositions.index');
     }
     return view('welcome');

@@ -187,3 +187,125 @@ body.light .sticky-filter {
 * {
   transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
+
+/* ===== Vote Animation Styles ===== */
+
+/* Upvote celebration animation */
+@keyframes upvote-celebrate {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.1) rotate(-5deg);
+  }
+  50% {
+    transform: scale(1.15) rotate(5deg);
+  }
+  75% {
+    transform: scale(1.05) rotate(-2deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes upvote-glow {
+  0% {
+    box-shadow: 0 0 0 rgba(34, 197, 94, 0);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+@keyframes upvote-hearts {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-10px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.5);
+  }
+}
+
+.upvote-animate {
+  animation: upvote-celebrate 0.6s ease-out, upvote-glow 0.8s ease-out;
+}
+
+.upvote-hearts {
+  position: relative;
+}
+
+.upvote-hearts::after {
+  content: '💚';
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: upvote-hearts 1s ease-out;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Subtle animation for downvote (less prominent) */
+@keyframes downvote-pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.downvote-animate {
+  animation: downvote-pulse 0.3s ease-out;
+}
+
+/* Vote button states - override frosted-input when voted */
+.upvote-btn[data-user-voted="true"] {
+  background: #bbf7d0 !important; /* bg-green-200 */
+  border-color: #86efac !important; /* border-green-300 */
+}
+
+.upvote-btn[data-user-voted="true"] svg {
+  color: #166534 !important; /* text-green-800 */
+}
+
+.upvote-btn[data-user-voted="true"] .upvote-count {
+  color: #14532d !important; /* text-green-900 */
+}
+
+.downvote-btn[data-user-voted="true"] {
+  background: #fecaca !important; /* bg-red-200 */
+  border-color: #fca5a5 !important; /* border-red-300 */
+}
+
+.downvote-btn[data-user-voted="true"] svg {
+  color: #991b1b !important; /* text-red-800 */
+}
+
+.downvote-btn[data-user-voted="true"] .downvote-count {
+  color: #7f1d1d !important; /* text-red-900 */
+}
+
+/* Light mode adjustments */
+body.light .upvote-btn[data-user-voted="true"] {
+  background: #bbf7d0 !important;
+  border-color: #86efac !important;
+}
+
+body.light .downvote-btn[data-user-voted="true"] {
+  background: #fecaca !important;
+  border-color: #fca5a5 !important;
+}

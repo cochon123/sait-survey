@@ -17,7 +17,7 @@ class CommentController extends Controller
 
         $comment = $proposition->comments()->create([
             'user_id' => Auth::id(),
-            'content' => $request->content,
+            'content' => $request->validated()['content'],
         ]);
 
         // Load the user relationship for the response

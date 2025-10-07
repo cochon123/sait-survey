@@ -224,6 +224,8 @@
                             const countSpan = this.querySelector('.upvote-count');
                             const downvoteBtn = this.closest('.proposition-card').querySelector('.downvote-btn');
                             const downvoteCountSpan = downvoteBtn.querySelector('.downvote-count');
+                            const svg = this.querySelector('svg');
+                            const wasUpvoted = this.dataset.userVoted === 'true';
 
                             try {
                                 const response = await fetch(`/propositions/${propositionId}/upvote`, {
@@ -243,33 +245,25 @@
                                         downvoteCountSpan.textContent = data.downvotes;
                                     }
 
-                                    // Animation
-                                    this.classList.add('animate-pulse');
-                                    setTimeout(() => this.classList.remove('animate-pulse'), 300);
+                                    // Determine if user is now upvoting (not removing upvote)
+                                    const isNowUpvoting = !wasUpvoted;
 
-                                    // Update button states to reflect user's vote
-                                    // If upvote count increased compared to what was there before OR
-                                    // if it's the same as before (meaning vote was toggled off), we need to track this
-                                    const currentUpvoteCount = parseInt(countSpan.textContent);
-                                    const currentDownvoteCount = parseInt(downvoteCountSpan.textContent);
-                                    const previousVote = localStorage.getItem(`vote_${propositionId}`);
-
-                                    if (previousVote === 'upvote') {
-                                        // User toggled off their upvote
-                                        localStorage.removeItem(`vote_${propositionId}`);
-                                        this.classList.remove('bg-green-500', 'text-white');
-                                        this.classList.add('bg-green-100', 'hover:bg-green-200');
+                                    if (wasUpvoted) {
+                                        // User is removing their upvote
+                                        this.dataset.userVoted = 'false';
                                     } else {
-                                        // User added upvote or switched from downvote to upvote
-                                        localStorage.setItem(`vote_${propositionId}`, 'upvote');
-                                        this.classList.remove('bg-green-100', 'hover:bg-green-200');
-                                        this.classList.add('bg-green-500', 'text-white');
+                                        // User is adding upvote - TRIGGER ANIMATION!
+                                        this.classList.add('upvote-animate', 'upvote-hearts');
+                                        this.dataset.userVoted = 'true';
 
-                                        // If user switched from downvote, update downvote button state
-                                        if (previousVote === 'downvote') {
-                                            downvoteBtn.classList.remove('bg-red-500', 'text-white');
-                                            downvoteBtn.classList.add('bg-red-100', 'hover:bg-red-200');
-                                            localStorage.removeItem(`vote_${propositionId}_downvote`);
+                                        // Remove animation classes after animation completes
+                                        setTimeout(() => {
+                                            this.classList.remove('upvote-animate', 'upvote-hearts');
+                                        }, 1000);
+
+                                        // If user had downvoted before, update downvote button
+                                        if (downvoteBtn.dataset.userVoted === 'true') {
+                                            downvoteBtn.dataset.userVoted = 'false';
                                         }
                                     }
                                 }
@@ -286,6 +280,8 @@
                             const countSpan = this.querySelector('.downvote-count');
                             const upvoteBtn = this.closest('.proposition-card').querySelector('.upvote-btn');
                             const upvoteCountSpan = upvoteBtn.querySelector('.upvote-count');
+                            const svg = this.querySelector('svg');
+                            const wasDownvoted = this.dataset.userVoted === 'true';
 
                             try {
                                 const response = await fetch(`/propositions/${propositionId}/downvote`, {
@@ -305,29 +301,39 @@
                                         upvoteCountSpan.textContent = data.upvotes;
                                     }
 
-                                    // Animation
-                                    this.classList.add('animate-pulse');
-                                    setTimeout(() => this.classList.remove('animate-pulse'), 300);
+                                    // Simple animation for downvote (subtle)
+                                    this.classList.add('downvote-animate');
+                                    setTimeout(() => this.classList.remove('downvote-animate'), 300);
 
-                                    // Update button states to reflect user's vote
-                                    const previousVote = localStorage.getItem(`vote_${propositionId}`);
-
-                                    if (previousVote === 'downvote') {
-                                        // User toggled off their downvote
-                                        localStorage.removeItem(`vote_${propositionId}`);
-                                        this.classList.remove('bg-red-500', 'text-white');
-                                        this.classList.add('bg-red-100', 'hover:bg-red-200');
+                                    if (wasDownvoted) {
+                                        // User is removing their downvote
+                                        this.classList.remove('bg-red-500', 'text-white', 'shadow-md');
+                                        this.classList.add('hover:bg-red-50');
+                                        svg.classList.remove('text-white');
+                                        svg.classList.add('text-red-500');
+                                        countSpan.classList.remove('text-white');
+                                        countSpan.classList.add('text-red-500');
+                                        this.dataset.userVoted = 'false';
                                     } else {
-                                        // User added downvote or switched from upvote to downvote
-                                        localStorage.setItem(`vote_${propositionId}`, 'downvote');
-                                        this.classList.remove('bg-red-100', 'hover:bg-red-200');
-                                        this.classList.add('bg-red-500', 'text-white');
+                                        // User is adding downvote
+                                        this.classList.remove('hover:bg-red-50');
+                                        this.classList.add('bg-red-500', 'text-white', 'shadow-md');
+                                        svg.classList.remove('text-red-500');
+                                        svg.classList.add('text-white');
+                                        countSpan.classList.remove('text-red-500');
+                                        countSpan.classList.add('text-white');
+                                        this.dataset.userVoted = 'true';
 
-                                        // If user switched from upvote, update upvote button state
-                                        if (previousVote === 'upvote') {
-                                            upvoteBtn.classList.remove('bg-green-500', 'text-white');
-                                            upvoteBtn.classList.add('bg-green-100', 'hover:bg-green-200');
-                                            localStorage.removeItem(`vote_${propositionId}_upvote`);
+                                        // If user had upvoted before, update upvote button
+                                        if (upvoteBtn.dataset.userVoted === 'true') {
+                                            const upvoteSvg = upvoteBtn.querySelector('svg');
+                                            upvoteBtn.classList.remove('bg-green-500', 'text-white', 'shadow-md');
+                                            upvoteBtn.classList.add('hover:bg-green-50');
+                                            upvoteSvg.classList.remove('text-white');
+                                            upvoteSvg.classList.add('text-green-500');
+                                            upvoteCountSpan.classList.remove('text-white');
+                                            upvoteCountSpan.classList.add('text-green-500');
+                                            upvoteBtn.dataset.userVoted = 'false';
                                         }
                                     }
                                 }
@@ -707,6 +713,8 @@
                         const countSpan = this.querySelector('.upvote-count');
                         const downvoteBtn = this.closest('.proposition-card').querySelector('.downvote-btn');
                         const downvoteCountSpan = downvoteBtn.querySelector('.downvote-count');
+                        const svg = this.querySelector('svg');
+                        const wasUpvoted = this.dataset.userVoted === 'true';
 
                         try {
                             const response = await fetch(`/propositions/${propositionId}/upvote`, {
@@ -724,22 +732,24 @@
                                     downvoteCountSpan.textContent = data.downvotes;
                                 }
 
-                                this.classList.add('animate-pulse');
-                                setTimeout(() => this.classList.remove('animate-pulse'), 300);
+                                const isNowUpvoting = !wasUpvoted;
 
-                                const previousVote = localStorage.getItem(`vote_${propositionId}`);
-                                if (previousVote === 'upvote') {
-                                    localStorage.removeItem(`vote_${propositionId}`);
-                                    this.classList.remove('bg-green-500', 'text-white');
-                                    this.classList.add('bg-green-100', 'hover:bg-green-200');
+                                if (wasUpvoted) {
+                                    // User is removing their upvote
+                                    this.dataset.userVoted = 'false';
                                 } else {
-                                    localStorage.setItem(`vote_${propositionId}`, 'upvote');
-                                    this.classList.remove('bg-green-100', 'hover:bg-green-200');
-                                    this.classList.add('bg-green-500', 'text-white');
+                                    // User is adding upvote - TRIGGER ANIMATION!
+                                    this.classList.add('upvote-animate', 'upvote-hearts');
+                                    this.dataset.userVoted = 'true';
 
-                                    if (previousVote === 'downvote') {
-                                        downvoteBtn.classList.remove('bg-red-500', 'text-white');
-                                        downvoteBtn.classList.add('bg-red-100', 'hover:bg-red-200');
+                                    // Remove animation classes after animation completes
+                                    setTimeout(() => {
+                                        this.classList.remove('upvote-animate', 'upvote-hearts');
+                                    }, 1000);
+
+                                    // If user had downvoted before, update downvote button
+                                    if (downvoteBtn.dataset.userVoted === 'true') {
+                                        downvoteBtn.dataset.userVoted = 'false';
                                     }
                                 }
                             }
@@ -756,6 +766,8 @@
                         const countSpan = this.querySelector('.downvote-count');
                         const upvoteBtn = this.closest('.proposition-card').querySelector('.upvote-btn');
                         const upvoteCountSpan = upvoteBtn.querySelector('.upvote-count');
+                        const svg = this.querySelector('svg');
+                        const wasDownvoted = this.dataset.userVoted === 'true';
 
                         try {
                             const response = await fetch(`/propositions/${propositionId}/downvote`, {
@@ -773,22 +785,20 @@
                                     upvoteCountSpan.textContent = data.upvotes;
                                 }
 
-                                this.classList.add('animate-pulse');
-                                setTimeout(() => this.classList.remove('animate-pulse'), 300);
+                                // Simple animation for downvote (subtle)
+                                this.classList.add('downvote-animate');
+                                setTimeout(() => this.classList.remove('downvote-animate'), 300);
 
-                                const previousVote = localStorage.getItem(`vote_${propositionId}`);
-                                if (previousVote === 'downvote') {
-                                    localStorage.removeItem(`vote_${propositionId}`);
-                                    this.classList.remove('bg-red-500', 'text-white');
-                                    this.classList.add('bg-red-100', 'hover:bg-red-200');
+                                if (wasDownvoted) {
+                                    // User is removing their downvote
+                                    this.dataset.userVoted = 'false';
                                 } else {
-                                    localStorage.setItem(`vote_${propositionId}`, 'downvote');
-                                    this.classList.remove('bg-red-100', 'hover:bg-red-200');
-                                    this.classList.add('bg-red-500', 'text-white');
+                                    // User is adding downvote
+                                    this.dataset.userVoted = 'true';
 
-                                    if (previousVote === 'upvote') {
-                                        upvoteBtn.classList.remove('bg-green-500', 'text-white');
-                                        upvoteBtn.classList.add('bg-green-100', 'hover:bg-green-200');
+                                    // If user had upvoted before, update upvote button
+                                    if (upvoteBtn.dataset.userVoted === 'true') {
+                                        upvoteBtn.dataset.userVoted = 'false';
                                     }
                                 }
                             }

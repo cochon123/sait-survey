@@ -1,6 +1,15 @@
 @props(['proposition'])
 
-<div class="frosted-card p-6 proposition-card transition-all duration-300 hover:shadow-frosted-m @if(session('new_proposition_id') == $proposition->id) ring-2 ring-brand @endif" data-id="{{ $proposition->id }}" data-upvotes="{{ $proposition->upvotes }}" data-downvotes="{{ $proposition->downvotes }}" data-created="{{ $proposition->created_at->timestamp }}">
+<div class="relative frosted-card p-6 proposition-card transition-all duration-300 hover:shadow-frosted-m @if(session('new_proposition_id') == $proposition->id) ring-2 ring-brand @endif" data-id="{{ $proposition->id }}" data-upvotes="{{ $proposition->upvotes }}" data-downvotes="{{ $proposition->downvotes }}" data-created="{{ $proposition->created_at->timestamp }}">
+    @auth
+        @if($proposition->user_id === Auth::id())
+            <button class="delete-btn absolute top-4 right-4 frosted-input flex items-center justify-center p-2 rounded-xl transition-all duration-200 hover:shadow-frosted-s" data-id="{{ $proposition->id }}" title="Delete proposition">
+                <svg class="w-4 h-4 text-muted hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+            </button>
+        @endif
+    @endauth
     <div class="mb-1">
         <!-- Header with profile picture and user info -->
         <div class="flex items-center mb-3">
@@ -22,17 +31,22 @@
         <!-- Action buttons (horizontal layout at bottom) -->
         <div class="flex items-center gap-2 pt-3">
             @auth
-                <button class="upvote-btn frosted-input flex items-center space-x-1 px-3 py-2 rounded-xl transition-all duration-200 hover:shadow-frosted-s" data-id="{{ $proposition->id }}">
-                    <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                @php
+                    $userVoteType = $proposition->getUserVoteType();
+                    $hasUpvoted = $userVoteType === 'upvote';
+                    $hasDownvoted = $userVoteType === 'downvote';
+                @endphp
+                <button class="upvote-btn frosted-input flex items-center space-x-1 px-3 py-2 rounded-xl transition-all duration-200 hover:shadow-frosted-s {{ $hasUpvoted ? 'bg-green-200 shadow-md' : 'hover:bg-green-50' }}" data-id="{{ $proposition->id }}" data-user-voted="{{ $hasUpvoted ? 'true' : 'false' }}">
+                    <svg class="w-4 h-4 {{ $hasUpvoted ? 'text-green-800' : 'text-green-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
                     </svg>
-                    <span class="upvote-count text-sm font-semibold text-green-500">{{ $proposition->upvotes }}</span>
+                    <span class="upvote-count text-sm font-semibold {{ $hasUpvoted ? 'text-green-900' : 'text-green-500' }}">{{ $proposition->upvotes }}</span>
                 </button>
-                <button class="downvote-btn frosted-input flex items-center space-x-1 px-3 py-2 rounded-xl transition-all duration-200 hover:shadow-frosted-s" data-id="{{ $proposition->id }}">
-                    <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button class="downvote-btn frosted-input flex items-center space-x-1 px-3 py-2 rounded-xl transition-all duration-200 hover:shadow-frosted-s {{ $hasDownvoted ? 'bg-red-200 shadow-md' : 'hover:bg-red-50' }}" data-id="{{ $proposition->id }}" data-user-voted="{{ $hasDownvoted ? 'true' : 'false' }}">
+                    <svg class="w-4 h-4 {{ $hasDownvoted ? 'text-red-800' : 'text-red-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
-                    <span class="downvote-count text-sm font-semibold text-red-500">{{ $proposition->downvotes }}</span>
+                    <span class="downvote-count text-sm font-semibold {{ $hasDownvoted ? 'text-red-900' : 'text-red-500' }}">{{ $proposition->downvotes }}</span>
                 </button>
                 <button class="comment-toggle-btn frosted-input flex items-center space-x-2 px-3 py-2 rounded-xl transition-all duration-200 hover:shadow-frosted-s" data-id="{{ $proposition->id }}">
                     <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,13 +55,6 @@
                     <span class="text-sm text-primary">Comment</span>
                     <span class="comment-count text-sm font-semibold text-primary">({{ $proposition->comments->count() }})</span>
                 </button>
-                @if($proposition->user_id === Auth::id())
-                    <button class="delete-btn frosted-input flex items-center justify-center p-2 rounded-xl transition-all duration-200 hover:shadow-frosted-s ml-auto" data-id="{{ $proposition->id }}" title="Delete proposition">
-                        <svg class="w-4 h-4 text-muted hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                        </svg>
-                    </button>
-                @endif
             @else
                 <div class="flex items-center gap-2">
                     <div class="frosted-input flex items-center space-x-1 px-3 py-2 rounded-xl opacity-60 cursor-not-allowed">
