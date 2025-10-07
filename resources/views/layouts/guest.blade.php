@@ -13,7 +13,7 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        
+
         <!-- PWA Meta Tags -->
         <link rel="manifest" href="{{ asset('build/manifest.webmanifest') }}">
         <meta name="mobile-web-app-capable" content="yes">
@@ -21,7 +21,7 @@
         <meta name="theme-color" content="#6366f1">
         <meta name="apple-mobile-web-app-status-bar-style" content="default">
         <link rel="apple-touch-icon" href="/image/campus_voice.png">
-        
+
 
     </head>
     <body class="font-sans antialiased depth-layer-1">
@@ -46,17 +46,17 @@
             document.addEventListener('DOMContentLoaded', function() {
                 const themeToggle = document.getElementById('themeToggle');
                 const body = document.body;
-                
+
                 // Check for saved theme preference or default to dark mode
                 const savedTheme = localStorage.getItem('theme');
                 if (savedTheme === 'light') {
                     body.classList.add('light');
                 }
-                
+
                 if (themeToggle) {
                     themeToggle.addEventListener('click', function() {
                         body.classList.toggle('light');
-                        
+
                         // Save theme preference
                         if (body.classList.contains('light')) {
                             localStorage.setItem('theme', 'light');

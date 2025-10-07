@@ -52,7 +52,7 @@
         <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
                 <h1 class="text-3xl font-bold text-blue-900 mb-6 text-center">Thank you for joining!</h1>
-                
+
                 <p class="text-gray-700 mb-8 text-center">
                     Just tell us about you, your name, your program, if you have a special competence also add it (even if is just that you are good at a video game)
                 </p>
@@ -67,11 +67,11 @@
                     @csrf
                     <div>
                         <label for="name" class="block text-gray-700 font-medium mb-2">Your Name</label>
-                        <input 
-                            type="text" 
-                            id="name" 
-                            name="name" 
-                            required 
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            required
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                             placeholder="Enter your name"
                         >
@@ -79,11 +79,11 @@
 
                     <div>
                         <label for="program" class="block text-gray-700 font-medium mb-2">Your Program</label>
-                        <input 
-                            type="text" 
-                            id="program" 
-                            name="program" 
-                            required 
+                        <input
+                            type="text"
+                            id="program"
+                            name="program"
+                            required
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                             placeholder="Enter your program"
                         >
@@ -91,10 +91,10 @@
 
                     <div>
                         <label for="competence" class="block text-gray-700 font-medium mb-2">Your Competence/Skill</label>
-                        <textarea 
-                            id="competence" 
-                            name="competence" 
-                            rows="4" 
+                        <textarea
+                            id="competence"
+                            name="competence"
+                            rows="4"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                             placeholder="Tell us about your special competence or skill..."
                         ></textarea>

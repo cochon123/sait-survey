@@ -64,7 +64,7 @@
         </form>
 
         <p class="text-center text-sm text-muted mt-6">
-            Pas encore inscrit ? 
+            Pas encore inscrit ?
             <a href="{{ route('register') }}" class="font-medium text-brand hover:underline">Créer un compte</a>
         </p>
     </div>

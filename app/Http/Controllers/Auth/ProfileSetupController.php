@@ -16,7 +16,7 @@ class ProfileSetupController extends Controller
     public function show()
     {
         $user = Auth::user();
-        
+
         // If profile is already completed, redirect to propositions
         if ($user->profile_completed) {
             return redirect()->route('propositions.index');

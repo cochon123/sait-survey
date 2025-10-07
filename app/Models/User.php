@@ -66,7 +66,7 @@ class User extends Authenticatable
      */
     public function getProfilePictureUrlAttribute(): string
     {
-        return $this->profile_picture 
+        return $this->profile_picture
             ? asset('storage/' . $this->profile_picture)
             : asset('image/default-avatar.svg');
     }

@@ -9,11 +9,20 @@ use Illuminate\Support\Facades\Auth;
 
 class PropositionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $propositions = Proposition::with(['user', 'comments.user'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $sort = $request->get('sort', 'recent');
+        $perPage = 15;
+
+        $query = Proposition::with(['user', 'comments.user']);
+
+        if ($sort === 'top') {
+            $query->orderBy('upvotes', 'desc')->orderBy('created_at', 'desc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $propositions = $query->paginate($perPage);
 
         // Check if there's a pending proposition from authentication
         if (session()->has('pending_proposition') && Auth::check()) {
@@ -36,12 +45,43 @@ class PropositionController extends Controller
             }
 
             // Re-fetch propositions to include the new one
-            $propositions = Proposition::with(['user', 'comments.user'])
-                ->orderBy('created_at', 'desc')
-                ->get();
+            $propositions = $query->paginate($perPage);
+        }
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('partials.propositions-list', compact('propositions'))->render(),
+                'hasMore' => $propositions->hasMorePages(),
+                'nextPage' => $propositions->currentPage() + 1,
+                'total' => $propositions->total()
+            ]);
         }
 
         return view('propositions', compact('propositions'));
+    }
+
+    public function loadMore(Request $request)
+    {
+        $sort = $request->get('sort', 'recent');
+        $page = $request->get('page', 2);
+        $perPage = 15;
+
+        $query = Proposition::with(['user', 'comments.user']);
+
+        if ($sort === 'top') {
+            $query->orderBy('upvotes', 'desc')->orderBy('created_at', 'desc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $propositions = $query->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json([
+            'html' => view('partials.propositions-list', compact('propositions'))->render(),
+            'hasMore' => $propositions->hasMorePages(),
+            'nextPage' => $propositions->currentPage() + 1,
+            'total' => $propositions->total()
+        ]);
     }
 
     public function store(Request $request)
@@ -72,7 +112,7 @@ class PropositionController extends Controller
     public function upvote(Proposition $proposition)
     {
         $userId = Auth::id();
-        
+
         // Check if user is authenticated
         if (!$userId) {
             return response()->json(['error' => 'Authentication required'], 401);
@@ -84,7 +124,7 @@ class PropositionController extends Controller
     public function downvote(Proposition $proposition)
     {
         $userId = Auth::id();
-        
+
         // Check if user is authenticated
         if (!$userId) {
             return response()->json(['error' => 'Authentication required'], 401);
@@ -95,7 +135,7 @@ class PropositionController extends Controller
 
     /**
      * Toggle vote for a proposition
-     * 
+     *
      * @param Proposition $proposition
      * @param int $userId
      * @param string $voteType
@@ -105,17 +145,17 @@ class PropositionController extends Controller
     {
         // Determine the opposite vote type
         $oppositeVoteType = $voteType === 'upvote' ? 'downvote' : 'upvote';
-        
+
         // Check if user has already voted
         if ($proposition->hasUserVoted($userId)) {
             $currentVote = $proposition->getUserVoteType($userId);
-            
+
             if ($currentVote === $voteType) {
                 // User is trying to vote the same way again - remove the vote (toggle)
                 PropositionVote::where('user_id', $userId)
                     ->where('proposition_id', $proposition->id)
                     ->delete();
-                
+
                 // Update vote counts based on vote type
                 if ($voteType === 'upvote') {
                     $proposition->decrement('upvotes');
@@ -127,7 +167,7 @@ class PropositionController extends Controller
                 PropositionVote::where('user_id', $userId)
                     ->where('proposition_id', $proposition->id)
                     ->update(['vote_type' => $voteType]);
-                
+
                 // Update vote counts (increment current vote, decrement opposite vote)
                 if ($voteType === 'upvote') {
                     $proposition->increment('upvotes');
@@ -144,7 +184,7 @@ class PropositionController extends Controller
                 'proposition_id' => $proposition->id,
                 'vote_type' => $voteType
             ]);
-            
+
             // Update vote counts based on vote type
             if ($voteType === 'upvote') {
                 $proposition->increment('upvotes');

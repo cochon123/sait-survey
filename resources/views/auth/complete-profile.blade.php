@@ -41,11 +41,11 @@
                         <label for="nickname" class="block text-sm font-medium mb-2" style="color: var(--text);">
                             Nickname <span style="color: var(--brand);">*</span>
                         </label>
-                        <input id="nickname" 
-                               type="text" 
-                               name="nickname" 
-                               value="{{ old('nickname') }}" 
-                               required 
+                        <input id="nickname"
+                               type="text"
+                               name="nickname"
+                               value="{{ old('nickname') }}"
+                               required
                                autofocus
                                maxlength="50"
                                class="frosted-input w-full px-4 py-2 rounded-lg focus:outline-none focus:ring-2 transition-all"
@@ -61,15 +61,15 @@
                         <label for="profile_picture" class="block text-sm font-medium mb-2" style="color: var(--text);">
                             Profile Picture (Optional)
                         </label>
-                        
+
                         <!-- Preview Area -->
                         <div class="mb-3 flex justify-center">
                             <div class="relative">
-                                <img id="preview" 
-                                     src="{{ asset('image/default-avatar.svg') }}" 
-                                     alt="Profile preview" 
+                                <img id="preview"
+                                     src="{{ asset('image/default-avatar.svg') }}"
+                                     alt="Profile preview"
                                      class="w-32 h-32 rounded-full object-cover frosted-card">
-                                <label for="profile_picture" 
+                                <label for="profile_picture"
                                        class="absolute bottom-0 right-0 p-2 rounded-full cursor-pointer hover:scale-110 transition-transform"
                                        style="background: var(--brand); color: hsl(0, 0%, 10%);">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -80,12 +80,12 @@
                             </div>
                         </div>
 
-                        <input id="profile_picture" 
-                               type="file" 
-                               name="profile_picture" 
+                        <input id="profile_picture"
+                               type="file"
+                               name="profile_picture"
                                accept="image/*"
                                class="hidden">
-                        
+
                         <p class="mt-1 text-xs text-center" style="color: var(--text-muted);">
                             Click the camera icon to upload a photo (Max 2MB, JPG/PNG)
                         </p>
@@ -93,7 +93,7 @@
 
                     <!-- Submit Button -->
                     <div class="flex items-center justify-end mt-8">
-                        <button type="submit" 
+                        <button type="submit"
                                 class="w-full py-3 px-6 rounded-lg font-semibold text-center transition-all hover:scale-[1.02] active:scale-[0.98]"
                                 style="background: var(--brand); color: hsl(0, 0%, 10%); box-shadow: var(--shadow-s);">
                             Complete Profile & Continue

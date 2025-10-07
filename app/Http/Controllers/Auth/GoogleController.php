@@ -38,14 +38,14 @@ class GoogleController extends Controller
                 if (!$user->google_id) {
                     $user->update(['google_id' => $googleUser->getId()]);
                 }
-                
+
                 Auth::login($user, true);
-                
+
                 // Redirect to profile completion if not completed
                 if (!$user->profile_completed) {
                     return redirect()->route('profile.complete');
                 }
-                
+
                 return redirect()->route('propositions.index');
             }
 
@@ -59,10 +59,10 @@ class GoogleController extends Controller
             ]);
 
             Auth::login($user, true);
-            
+
             // Redirect to profile completion for new users
             return redirect()->route('profile.complete');
-            
+
         } catch (Exception $e) {
             return redirect('/login')->with('error', 'Something went wrong!');
         }

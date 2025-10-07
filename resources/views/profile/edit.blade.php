@@ -11,7 +11,7 @@
 
     <!-- Styles / Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
+
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
@@ -43,12 +43,12 @@
                     <!-- Profile Picture Section -->
                     <div class="flex flex-col items-center md:w-1/3">
                         <div class="relative mb-4">
-                            <img id="profilePreview" 
-                                 src="{{ $user->profile_picture_url }}" 
-                                 alt="Profile Picture" 
+                            <img id="profilePreview"
+                                 src="{{ $user->profile_picture_url }}"
+                                 alt="Profile Picture"
                                  class="w-40 h-40 rounded-full object-cover frosted-card ring-4 ring-opacity-20"
                                  style="ring-color: var(--brand);">
-                            <label for="profile_picture_input" 
+                            <label for="profile_picture_input"
                                    class="absolute bottom-2 right-2 p-3 rounded-full cursor-pointer hover:scale-110 transition-transform shadow-lg"
                                    style="background: var(--brand); color: hsl(0, 0%, 10%);"
                                    title="Change profile picture">
@@ -66,15 +66,15 @@
                     <!-- Profile Form -->
                     <div class="flex-1">
                         <h3 class="text-lg font-semibold mb-6" style="color: var(--text);">Profile Information</h3>
-                        
+
                         <form id="profileForm" method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="space-y-6">
                             @csrf
                             @method('PATCH')
 
-                            <input type="file" 
-                                   id="profile_picture_input" 
-                                   name="profile_picture" 
-                                   accept="image/*" 
+                            <input type="file"
+                                   id="profile_picture_input"
+                                   name="profile_picture"
+                                   accept="image/*"
                                    class="hidden">
 
                             <!-- Nickname -->
@@ -82,11 +82,11 @@
                                 <label for="nickname" class="block text-sm font-medium mb-2" style="color: var(--text);">
                                     Nickname <span style="color: var(--brand);">*</span>
                                 </label>
-                                <input id="nickname" 
-                                       type="text" 
-                                       name="nickname" 
-                                       value="{{ old('nickname', $user->nickname) }}" 
-                                       required 
+                                <input id="nickname"
+                                       type="text"
+                                       name="nickname"
+                                       value="{{ old('nickname', $user->nickname) }}"
+                                       required
                                        maxlength="50"
                                        class="frosted-input w-full px-4 py-2 rounded-lg focus:outline-none focus:ring-2 transition-all"
                                        style="color: var(--text); --tw-ring-color: var(--brand);"
@@ -104,9 +104,9 @@
                                 <label for="name" class="block text-sm font-medium mb-2" style="color: var(--text);">
                                     Full Name
                                 </label>
-                                <input id="name" 
-                                       type="text" 
-                                       value="{{ $user->name }}" 
+                                <input id="name"
+                                       type="text"
+                                       value="{{ $user->name }}"
                                        disabled
                                        class="frosted-input w-full px-4 py-2 rounded-lg opacity-60 cursor-not-allowed"
                                        style="color: var(--text-muted);">
@@ -120,9 +120,9 @@
                                 <label for="email" class="block text-sm font-medium mb-2" style="color: var(--text);">
                                     Email
                                 </label>
-                                <input id="email" 
-                                       type="email" 
-                                       value="{{ $user->email }}" 
+                                <input id="email"
+                                       type="email"
+                                       value="{{ $user->email }}"
                                        disabled
                                        class="frosted-input w-full px-4 py-2 rounded-lg opacity-60 cursor-not-allowed"
                                        style="color: var(--text-muted);">
@@ -133,7 +133,7 @@
 
                             <!-- Save Button -->
                             <div class="flex items-center justify-end pt-4">
-                                <button type="submit" 
+                                <button type="submit"
                                         class="py-3 px-8 rounded-lg font-semibold text-center transition-all hover:scale-[1.02] active:scale-[0.98]"
                                         style="background: var(--brand); color: hsl(0, 0%, 10%); box-shadow: var(--shadow-s);">
                                     Save Changes
@@ -169,7 +169,7 @@
                 <form method="POST" action="{{ route('profile.destroy') }}" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" 
+                    <button type="submit"
                             class="py-2 px-6 rounded-lg font-semibold text-white transition-all hover:scale-[1.02] active:scale-[0.98]"
                             style="background: hsl(0, 70%, 50%); box-shadow: var(--shadow-s);">
                         Delete Account
@@ -215,7 +215,7 @@
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
             document.body.classList.add('light');
         }
-        
+
         // Listen for theme changes
         window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
             if (e.matches) {

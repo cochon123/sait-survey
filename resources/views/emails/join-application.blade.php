@@ -6,11 +6,11 @@
 </head>
 <body>
     <h1>New SAIT Survey Application</h1>
-    
+
     <p><strong>Name:</strong> {{ $name }}</p>
     <p><strong>Program:</strong> {{ $program }}</p>
     <p><strong>Competence/Skill:</strong> {{ $competence ?: 'Not specified' }}</p>
-    
+
     <p>Thank you for your interest in the Campus Voice project!</p>
 </body>
 </html>

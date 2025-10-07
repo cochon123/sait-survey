@@ -79,24 +79,30 @@
                         <button id="sort-top" class="btn-secondary px-3 py-1.5 text-xs font-medium whitespace-nowrap">Top</button>
                     </div>
                     <div class="text-xs text-muted whitespace-nowrap">
-                        <span id="proposition-count">{{ $propositions->count() }}</span> ideas
+                        <span id="proposition-count">{{ $propositions->total() }}</span> ideas
                     </div>
                 </div>
             </div>
 
             <!-- Propositions List -->
             <div id="propositions-list" class="space-y-4">
-                @forelse($propositions as $proposition)
-                    <x-proposition-card :proposition="$proposition" />
-                @empty
-                    <div class="frosted-card p-12 text-center">
-                        <svg class="w-16 h-16 mx-auto mb-4 text-muted opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-                        </svg>
-                        <p class="text-muted text-lg mb-2">No propositions yet</p>
-                        <p class="text-muted text-sm">Be the first to share your idea!</p>
-                    </div>
-                @endforelse
+                @include('partials.propositions-list', ['propositions' => $propositions])
+            </div>
+
+            <!-- Loading Spinner -->
+            <div id="loading-spinner" class="hidden text-center py-8">
+                <div class="inline-flex items-center gap-3">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-brand"></div>
+                    <span class="text-muted">Loading more ideas...</span>
+                </div>
+            </div>
+
+            <!-- End of content indicator -->
+            <div id="end-of-content" class="hidden text-center py-8">
+                <div class="frosted-card p-6">
+                    <p class="text-muted">You've reached the end! 🎉</p>
+                    <p class="text-muted text-sm mt-1">All ideas have been loaded.</p>
+                </div>
             </div>
         </main>
 
@@ -184,19 +190,19 @@
                             const propositionId = card.dataset.id;
                             const upvoteBtn = card.querySelector('.upvote-btn');
                             const downvoteBtn = card.querySelector('.downvote-btn');
-                            
+
                             // Check if user has already voted for this proposition (would require server-side information)
                             // For now, we'll implement a client-side tracking
                             const userVoteType = localStorage.getItem(`vote_${propositionId}`);
-                            
+
                             // Reset classes first
                             upvoteBtn.classList.remove('bg-green-300', 'bg-green-500', 'text-white');
                             downvoteBtn.classList.remove('bg-red-300', 'bg-red-500', 'text-white');
-                            
+
                             // Add original styling
                             upvoteBtn.classList.add('bg-green-100', 'hover:bg-green-200');
                             downvoteBtn.classList.add('bg-red-100', 'hover:bg-red-200');
-                            
+
                             // Apply styling based on user's vote
                             if (userVoteType === 'upvote') {
                                 upvoteBtn.classList.remove('bg-green-100', 'hover:bg-green-200');
@@ -207,7 +213,7 @@
                             }
                         });
                     }
-                    
+
                     // Initial update of button states
                     updateButtonStates();
 
@@ -242,7 +248,7 @@
                                     setTimeout(() => this.classList.remove('animate-pulse'), 300);
 
                                     // Update button states to reflect user's vote
-                                    // If upvote count increased compared to what was there before OR 
+                                    // If upvote count increased compared to what was there before OR
                                     // if it's the same as before (meaning vote was toggled off), we need to track this
                                     const currentUpvoteCount = parseInt(countSpan.textContent);
                                     const currentDownvoteCount = parseInt(downvoteCountSpan.textContent);
@@ -258,7 +264,7 @@
                                         localStorage.setItem(`vote_${propositionId}`, 'upvote');
                                         this.classList.remove('bg-green-100', 'hover:bg-green-200');
                                         this.classList.add('bg-green-500', 'text-white');
-                                        
+
                                         // If user switched from downvote, update downvote button state
                                         if (previousVote === 'downvote') {
                                             downvoteBtn.classList.remove('bg-red-500', 'text-white');
@@ -316,7 +322,7 @@
                                         localStorage.setItem(`vote_${propositionId}`, 'downvote');
                                         this.classList.remove('bg-red-100', 'hover:bg-red-200');
                                         this.classList.add('bg-red-500', 'text-white');
-                                        
+
                                         // If user switched from upvote, update upvote button state
                                         if (previousVote === 'upvote') {
                                             upvoteBtn.classList.remove('bg-green-500', 'text-white');
@@ -355,18 +361,18 @@
                                     // Add fade out animation
                                     propositionCard.style.transition = 'opacity 0.3s ease-out';
                                     propositionCard.style.opacity = '0';
-                                    
+
                                     // Remove the card from the DOM after animation
                                     setTimeout(() => {
                                         propositionCard.remove();
-                                        
+
                                         // Update proposition count
                                         const propositionsList = document.getElementById('propositions-list');
                                         const countElement = document.getElementById('proposition-count');
                                         if (countElement) {
                                             countElement.textContent = propositionsList.children.length;
                                         }
-                                        
+
                                         // Check if there are no more propositions
                                         if (propositionsList.children.length === 0) {
                                             propositionsList.innerHTML = '<div class="bg-white rounded-lg shadow-md p-8 text-center"><p class="text-gray-500 text-lg">No propositions yet. Be the first to share your idea!</p></div>';
@@ -392,10 +398,10 @@
                         const propositionId = this.dataset.id;
                         const card = this.closest('.proposition-card');
                         const commentsSection = card.querySelector('.comments-section');
-                        
+
                         if (commentsSection) {
                             commentsSection.classList.toggle('hidden');
-                            
+
                             // Toggle active state on button
                             if (commentsSection.classList.contains('hidden')) {
                                 this.classList.remove('bg-brand', 'text-black');
@@ -415,13 +421,13 @@
                 document.querySelectorAll('.comment-form').forEach(form => {
                     form.addEventListener('submit', async function(e) {
                         e.preventDefault();
-                        
+
                         const propositionId = this.dataset.propositionId;
                         const contentInput = this.querySelector('input[name="content"]');
                         const content = contentInput.value.trim();
-                        
+
                         if (!content) return;
-                        
+
                         try {
                             const response = await fetch(`/propositions/${propositionId}/comments`, {
                                 method: 'POST',
@@ -431,11 +437,11 @@
                                 },
                                 body: JSON.stringify({ content })
                             });
-                            
+
                             if (response.ok) {
                                 const data = await response.json();
                                 const commentsList = this.closest('.comments-section').querySelector('.comments-list');
-                                
+
                                 // Create new comment element
                                 const commentHtml = `
                                     <div class="comment-item flex gap-3" data-comment-id="${data.comment.id}">
@@ -456,19 +462,19 @@
                                         </div>
                                     </div>
                                 `;
-                                
+
                                 commentsList.insertAdjacentHTML('beforeend', commentHtml);
-                                
+
                                 // Update comment count
                                 const card = this.closest('.proposition-card');
                                 const countSpan = card.querySelector('.comment-count');
                                 if (countSpan) {
                                     countSpan.textContent = parseInt(countSpan.textContent) + 1;
                                 }
-                                
+
                                 // Clear input
                                 contentInput.value = '';
-                                
+
                                 // Re-attach delete event listeners
                                 attachDeleteCommentListeners();
                             }
@@ -483,13 +489,13 @@
                     document.querySelectorAll('.delete-comment-btn').forEach(button => {
                         button.replaceWith(button.cloneNode(true));
                     });
-                    
+
                     document.querySelectorAll('.delete-comment-btn').forEach(button => {
                         button.addEventListener('click', async function() {
                             const commentId = this.dataset.commentId;
-                            
+
                             if (!confirm('Delete this comment?')) return;
-                            
+
                             try {
                                 const response = await fetch(`/comments/${commentId}`, {
                                     method: 'DELETE',
@@ -498,17 +504,17 @@
                                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                                     }
                                 });
-                                
+
                                 if (response.ok) {
                                     const commentItem = this.closest('.comment-item');
                                     const card = this.closest('.proposition-card');
-                                    
+
                                     // Update count
                                     const countSpan = card.querySelector('.comment-count');
                                     if (countSpan) {
                                         countSpan.textContent = Math.max(0, parseInt(countSpan.textContent) - 1);
                                     }
-                                    
+
                                     // Remove comment
                                     commentItem.remove();
                                 }
@@ -518,7 +524,7 @@
                         });
                     });
                 }
-                
+
                 // Initial attachment
                 attachDeleteCommentListeners();
             });
@@ -528,37 +534,462 @@
                 const sortRecentBtn = document.getElementById('sort-recent');
                 const sortTopBtn = document.getElementById('sort-top');
                 const propositionsList = document.getElementById('propositions-list');
+                let currentSort = 'recent';
+                let currentPage = {{ $propositions->currentPage() }};
+                let hasMorePages = {{ $propositions->hasMorePages() ? 'true' : 'false' }};
+                let isLoading = false;
 
-                function sortPropositions(compareFn) {
-                    const propositions = Array.from(propositionsList.children);
-                    propositions.sort(compareFn);
-                    propositions.forEach(prop => propositionsList.appendChild(prop));
+                function updateSortButtons(activeSort) {
+                    currentSort = activeSort;
+
+                    if (activeSort === 'recent') {
+                        sortRecentBtn.classList.remove('btn-secondary');
+                        sortRecentBtn.classList.add('btn-primary');
+                        sortTopBtn.classList.remove('btn-primary');
+                        sortTopBtn.classList.add('btn-secondary');
+                    } else {
+                        sortTopBtn.classList.remove('btn-secondary');
+                        sortTopBtn.classList.add('btn-primary');
+                        sortRecentBtn.classList.remove('btn-primary');
+                        sortRecentBtn.classList.add('btn-secondary');
+                    }
                 }
 
-                sortRecentBtn.addEventListener('click', function() {
-                    sortRecentBtn.classList.remove('btn-secondary');
-                    sortRecentBtn.classList.add('btn-primary');
-                    sortTopBtn.classList.remove('btn-primary');
-                    sortTopBtn.classList.add('btn-secondary');
+                function loadPropositions(sort, resetList = false) {
+                    if (isLoading) return;
 
-                    sortPropositions((a, b) => {
-                        return parseInt(b.dataset.created) - parseInt(a.dataset.created);
+                    isLoading = true;
+                    document.getElementById('loading-spinner').classList.remove('hidden');
+
+                    let url;
+                    if (resetList) {
+                        url = new URL('{{ route("propositions.index") }}');
+                        url.searchParams.set('sort', sort);
+                    } else {
+                        url = new URL('{{ route("propositions.load-more") }}');
+                        url.searchParams.set('sort', sort);
+                        url.searchParams.set('page', currentPage + 1);
+                    }
+
+                    fetch(url, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (resetList) {
+                            propositionsList.innerHTML = data.html;
+                            currentPage = 1;
+                        } else {
+                            const newPropositions = document.createElement('div');
+                            newPropositions.innerHTML = data.html;
+
+                            // Append new propositions with animation
+                            Array.from(newPropositions.children).forEach((proposition, index) => {
+                                setTimeout(() => {
+                                    proposition.style.opacity = '0';
+                                    proposition.style.transform = 'translateY(20px)';
+                                    propositionsList.appendChild(proposition);
+
+                                    // Trigger animation
+                                    setTimeout(() => {
+                                        proposition.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                                        proposition.style.opacity = '1';
+                                        proposition.style.transform = 'translateY(0)';
+                                    }, 50);
+                                }, index * 100);
+                            });
+
+                            currentPage++;
+                        }
+
+                        hasMorePages = data.hasMore;
+
+                        // Update total count if provided
+                        if (data.total) {
+                            const countElement = document.getElementById('proposition-count');
+                            if (countElement) {
+                                countElement.textContent = data.total;
+                            }
+                        }
+
+                        // Show end of content message if no more pages
+                        if (!hasMorePages) {
+                            document.getElementById('end-of-content').classList.remove('hidden');
+                        } else {
+                            document.getElementById('end-of-content').classList.add('hidden');
+                        }
+
+                        // Reattach event listeners for new elements
+                        reattachEventListeners();
+                    })
+                    .catch(error => {
+                        // Error handled silently
+                    })
+                    .finally(() => {
+                        isLoading = false;
+                        document.getElementById('loading-spinner').classList.add('hidden');
                     });
+                }
+
+                function reattachEventListeners() {
+                    // Reattach voting listeners
+                    @auth
+                        attachVotingListeners();
+                    @endauth
+
+                    // Reattach comment listeners
+                    attachCommentListeners();
+
+                    // Reattach delete listeners
+                    @auth
+                        attachDeleteListeners();
+                    @endauth
+                }
+
+                // Infinite scroll
+                function checkScroll() {
+                    if (isLoading || !hasMorePages) return;
+
+                    const scrollPosition = window.innerHeight + window.scrollY;
+                    const threshold = document.documentElement.offsetHeight - 1000; // Load 1000px before end
+
+                    if (scrollPosition >= threshold) {
+                        loadPropositions(currentSort, false);
+                    }
+                }
+
+                // Throttle scroll events
+                let scrollTimeout;
+                window.addEventListener('scroll', function() {
+                    if (scrollTimeout) clearTimeout(scrollTimeout);
+                    scrollTimeout = setTimeout(checkScroll, 100);
+                });
+
+                sortRecentBtn.addEventListener('click', function() {
+                    if (currentSort === 'recent') return;
+
+                    updateSortButtons('recent');
+                    currentPage = 0;
+                    hasMorePages = true;
+                    loadPropositions('recent', true);
                 });
 
                 sortTopBtn.addEventListener('click', function() {
-                    sortTopBtn.classList.remove('btn-secondary');
-                    sortTopBtn.classList.add('btn-primary');
-                    sortRecentBtn.classList.remove('btn-primary');
-                    sortRecentBtn.classList.add('btn-secondary');
+                    if (currentSort === 'top') return;
 
-                    sortPropositions((a, b) => {
-                        const aScore = parseInt(a.dataset.upvotes) - parseInt(a.dataset.downvotes);
-                        const bScore = parseInt(b.dataset.upvotes) - parseInt(b.dataset.downvotes);
-                        return bScore - aScore;
-                    });
+                    updateSortButtons('top');
+                    currentPage = 0;
+                    hasMorePages = true;
+                    loadPropositions('top', true);
                 });
             });
+
+            // Helper functions for reattaching event listeners
+            @auth
+            function attachVotingListeners() {
+                // Remove existing listeners and reattach
+                document.querySelectorAll('.upvote-btn').forEach(button => {
+                    const newButton = button.cloneNode(true);
+                    button.parentNode.replaceChild(newButton, button);
+                });
+
+                document.querySelectorAll('.downvote-btn').forEach(button => {
+                    const newButton = button.cloneNode(true);
+                    button.parentNode.replaceChild(newButton, button);
+                });
+
+                // Upvote functionality (reattach)
+                document.querySelectorAll('.upvote-btn').forEach(button => {
+                    button.addEventListener('click', async function() {
+                        const propositionId = this.dataset.id;
+                        const countSpan = this.querySelector('.upvote-count');
+                        const downvoteBtn = this.closest('.proposition-card').querySelector('.downvote-btn');
+                        const downvoteCountSpan = downvoteBtn.querySelector('.downvote-count');
+
+                        try {
+                            const response = await fetch(`/propositions/${propositionId}/upvote`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                }
+                            });
+
+                            if (response.ok) {
+                                const data = await response.json();
+                                countSpan.textContent = data.upvotes;
+                                if (downvoteCountSpan) {
+                                    downvoteCountSpan.textContent = data.downvotes;
+                                }
+
+                                this.classList.add('animate-pulse');
+                                setTimeout(() => this.classList.remove('animate-pulse'), 300);
+
+                                const previousVote = localStorage.getItem(`vote_${propositionId}`);
+                                if (previousVote === 'upvote') {
+                                    localStorage.removeItem(`vote_${propositionId}`);
+                                    this.classList.remove('bg-green-500', 'text-white');
+                                    this.classList.add('bg-green-100', 'hover:bg-green-200');
+                                } else {
+                                    localStorage.setItem(`vote_${propositionId}`, 'upvote');
+                                    this.classList.remove('bg-green-100', 'hover:bg-green-200');
+                                    this.classList.add('bg-green-500', 'text-white');
+
+                                    if (previousVote === 'downvote') {
+                                        downvoteBtn.classList.remove('bg-red-500', 'text-white');
+                                        downvoteBtn.classList.add('bg-red-100', 'hover:bg-red-200');
+                                    }
+                                }
+                            }
+                        } catch (error) {
+                            // Error handled silently
+                        }
+                    });
+                });
+
+                // Downvote functionality (reattach)
+                document.querySelectorAll('.downvote-btn').forEach(button => {
+                    button.addEventListener('click', async function() {
+                        const propositionId = this.dataset.id;
+                        const countSpan = this.querySelector('.downvote-count');
+                        const upvoteBtn = this.closest('.proposition-card').querySelector('.upvote-btn');
+                        const upvoteCountSpan = upvoteBtn.querySelector('.upvote-count');
+
+                        try {
+                            const response = await fetch(`/propositions/${propositionId}/downvote`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                }
+                            });
+
+                            if (response.ok) {
+                                const data = await response.json();
+                                countSpan.textContent = data.downvotes;
+                                if (upvoteCountSpan) {
+                                    upvoteCountSpan.textContent = data.upvotes;
+                                }
+
+                                this.classList.add('animate-pulse');
+                                setTimeout(() => this.classList.remove('animate-pulse'), 300);
+
+                                const previousVote = localStorage.getItem(`vote_${propositionId}`);
+                                if (previousVote === 'downvote') {
+                                    localStorage.removeItem(`vote_${propositionId}`);
+                                    this.classList.remove('bg-red-500', 'text-white');
+                                    this.classList.add('bg-red-100', 'hover:bg-red-200');
+                                } else {
+                                    localStorage.setItem(`vote_${propositionId}`, 'downvote');
+                                    this.classList.remove('bg-red-100', 'hover:bg-red-200');
+                                    this.classList.add('bg-red-500', 'text-white');
+
+                                    if (previousVote === 'upvote') {
+                                        upvoteBtn.classList.remove('bg-green-500', 'text-white');
+                                        upvoteBtn.classList.add('bg-green-100', 'hover:bg-green-200');
+                                    }
+                                }
+                            }
+                        } catch (error) {
+                            // Error handled silently
+                        }
+                    });
+                });
+            }
+
+            function attachDeleteListeners() {
+                document.querySelectorAll('.delete-btn').forEach(button => {
+                    const newButton = button.cloneNode(true);
+                    button.parentNode.replaceChild(newButton, button);
+                });
+
+                document.querySelectorAll('.delete-btn').forEach(button => {
+                    button.addEventListener('click', async function() {
+                        const propositionId = this.dataset.id;
+                        const propositionCard = this.closest('.proposition-card');
+
+                        if (!confirm('Are you sure you want to delete this proposition? This action cannot be undone.')) {
+                            return;
+                        }
+
+                        try {
+                            const response = await fetch(`/propositions/${propositionId}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                }
+                            });
+
+                            if (response.ok) {
+                                propositionCard.style.transition = 'opacity 0.3s ease-out';
+                                propositionCard.style.opacity = '0';
+
+                                setTimeout(() => {
+                                    propositionCard.remove();
+
+                                    const propositionsList = document.getElementById('propositions-list');
+                                    const countElement = document.getElementById('proposition-count');
+                                    if (countElement) {
+                                        countElement.textContent = propositionsList.children.length;
+                                    }
+
+                                    if (propositionsList.children.length === 0) {
+                                        propositionsList.innerHTML = '<div class="frosted-card p-12 text-center"><svg class="w-16 h-16 mx-auto mb-4 text-muted opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg><p class="text-muted text-lg mb-2">No propositions yet</p><p class="text-muted text-sm">Be the first to share your idea!</p></div>';
+                                    }
+                                }, 300);
+                            } else {
+                                const data = await response.json();
+                                alert(data.error || 'Error deleting proposition');
+                            }
+                        } catch (error) {
+                            alert('An error occurred while deleting the proposition');
+                        }
+                    });
+                });
+            }
+            @endauth
+
+            function attachCommentListeners() {
+                // Comment toggle buttons
+                document.querySelectorAll('.comment-toggle-btn').forEach(button => {
+                    const newButton = button.cloneNode(true);
+                    button.parentNode.replaceChild(newButton, button);
+                });
+
+                document.querySelectorAll('.comment-toggle-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const propositionId = this.dataset.id;
+                        const card = this.closest('.proposition-card');
+                        const commentsSection = card.querySelector('.comments-section');
+
+                        if (commentsSection) {
+                            commentsSection.classList.toggle('hidden');
+
+                            if (commentsSection.classList.contains('hidden')) {
+                                this.classList.remove('bg-brand', 'text-black');
+                            } else {
+                                this.classList.add('bg-brand', 'text-black');
+                                const commentInput = commentsSection.querySelector('input[name="content"]');
+                                if (commentInput) {
+                                    setTimeout(() => commentInput.focus(), 100);
+                                }
+                            }
+                        }
+                    });
+                });
+
+                // Comment forms
+                document.querySelectorAll('.comment-form').forEach(form => {
+                    const newForm = form.cloneNode(true);
+                    form.parentNode.replaceChild(newForm, form);
+                });
+
+                document.querySelectorAll('.comment-form').forEach(form => {
+                    form.addEventListener('submit', async function(e) {
+                        e.preventDefault();
+
+                        const propositionId = this.dataset.propositionId;
+                        const contentInput = this.querySelector('input[name="content"]');
+                        const content = contentInput.value.trim();
+
+                        if (!content) return;
+
+                        try {
+                            const response = await fetch(`/propositions/${propositionId}/comments`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                },
+                                body: JSON.stringify({ content })
+                            });
+
+                            if (response.ok) {
+                                const data = await response.json();
+                                const commentsList = this.closest('.comments-section').querySelector('.comments-list');
+
+                                const commentHtml = `
+                                    <div class="comment-item flex gap-3" data-comment-id="${data.comment.id}">
+                                        <img src="${data.comment.user.profile_picture_url}" alt="${data.comment.user.display_name}" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <span class="font-medium text-primary text-sm">${data.comment.user.display_name}</span>
+                                                <span class="text-xs text-muted">${data.comment.created_at}</span>
+                                                ${data.comment.can_delete ? `
+                                                    <button class="delete-comment-btn text-xs text-muted hover:text-red-500 ml-auto" data-comment-id="${data.comment.id}">
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                        </svg>
+                                                    </button>
+                                                ` : ''}
+                                            </div>
+                                            <p class="text-primary text-sm">${data.comment.content}</p>
+                                        </div>
+                                    </div>
+                                `;
+
+                                commentsList.insertAdjacentHTML('beforeend', commentHtml);
+
+                                const card = this.closest('.proposition-card');
+                                const countSpan = card.querySelector('.comment-count');
+                                if (countSpan) {
+                                    countSpan.textContent = parseInt(countSpan.textContent) + 1;
+                                }
+
+                                contentInput.value = '';
+                                attachCommentDeleteListeners();
+                            }
+                        } catch (error) {
+                            // Error handled silently
+                        }
+                    });
+                });
+
+                // Initial attachment of delete listeners
+                attachCommentDeleteListeners();
+            }
+
+            function attachCommentDeleteListeners() {
+                document.querySelectorAll('.delete-comment-btn').forEach(button => {
+                    const newButton = button.cloneNode(true);
+                    button.parentNode.replaceChild(newButton, button);
+                });
+
+                document.querySelectorAll('.delete-comment-btn').forEach(button => {
+                    button.addEventListener('click', async function() {
+                        const commentId = this.dataset.commentId;
+
+                        if (!confirm('Delete this comment?')) return;
+
+                        try {
+                            const response = await fetch(`/comments/${commentId}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                }
+                            });
+
+                            if (response.ok) {
+                                const commentItem = this.closest('.comment-item');
+                                const card = this.closest('.proposition-card');
+
+                                const countSpan = card.querySelector('.comment-count');
+                                if (countSpan) {
+                                    countSpan.textContent = Math.max(0, parseInt(countSpan.textContent) - 1);
+                                }
+
+                                commentItem.remove();
+                            }
+                        } catch (error) {
+                            // Error handled silently
+                        }
+                    });
+                });
+            }
 
             // Modal functionality
             document.addEventListener('DOMContentLoaded', function() {
@@ -757,7 +1188,7 @@
             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
                 document.body.classList.add('light');
             }
-            
+
             // Listen for theme changes
             window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
                 if (e.matches) {

@@ -25,6 +25,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/propositions', [PropositionController::class, 'index'])->name('propositions.index');
+Route::get('/propositions/load-more', [PropositionController::class, 'loadMore'])->name('propositions.load-more');
 Route::post('/propositions', [PropositionController::class, 'store'])->middleware(['auth', 'profile.completed'])->name('propositions.store');
 Route::post('/propositions/{proposition}/upvote', [PropositionController::class, 'upvote'])->middleware(['auth', 'profile.completed'])->name('propositions.upvote');
 Route::post('/propositions/{proposition}/downvote', [PropositionController::class, 'downvote'])->middleware(['auth', 'profile.completed'])->name('propositions.downvote');

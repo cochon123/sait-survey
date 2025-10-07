@@ -13,9 +13,9 @@
                     <p class="text-lg text-muted">Your voice shapes the future</p>
                 </div>
             </div>
-            
+
             <p class="text-xl text-muted mb-12 max-w-3xl mx-auto">Help us shape the future of SAIT by sharing your ideas and feedback. Together, we can make our campus an even better place to learn and thrive.</p>
-            
+
             <div class="space-x-4 flex justify-center flex-wrap gap-4">
                 <a href="{{ route('propositions.index') }}" class="btn-secondary">View Ideas</a>
                 @guest

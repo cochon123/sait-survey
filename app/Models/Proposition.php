@@ -44,7 +44,7 @@ class Proposition extends Model
         if (!$userId) {
             return false;
         }
-        
+
         return $this->votes()->where('user_id', $userId)->exists();
     }
 
@@ -57,7 +57,7 @@ class Proposition extends Model
         if (!$userId) {
             return null;
         }
-        
+
         $vote = $this->votes()->where('user_id', $userId)->first();
         return $vote ? $vote->vote_type : null;
     }
