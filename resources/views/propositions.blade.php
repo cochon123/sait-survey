@@ -181,51 +181,21 @@
                 });
             @endguest
 
-            // Voting functionality
+            // Voting functionality with event delegation
             @auth
                 document.addEventListener('DOMContentLoaded', function() {
-                    // Function to update button states based on user's vote
-                    function updateButtonStates() {
-                        document.querySelectorAll('.proposition-card').forEach(card => {
-                            const propositionId = card.dataset.id;
-                            const upvoteBtn = card.querySelector('.upvote-btn');
-                            const downvoteBtn = card.querySelector('.downvote-btn');
-
-                            // Check if user has already voted for this proposition (would require server-side information)
-                            // For now, we'll implement a client-side tracking
-                            const userVoteType = localStorage.getItem(`vote_${propositionId}`);
-
-                            // Reset classes first
-                            upvoteBtn.classList.remove('bg-green-300', 'bg-green-500', 'text-white');
-                            downvoteBtn.classList.remove('bg-red-300', 'bg-red-500', 'text-white');
-
-                            // Add original styling
-                            upvoteBtn.classList.add('bg-green-100', 'hover:bg-green-200');
-                            downvoteBtn.classList.add('bg-red-100', 'hover:bg-red-200');
-
-                            // Apply styling based on user's vote
-                            if (userVoteType === 'upvote') {
-                                upvoteBtn.classList.remove('bg-green-100', 'hover:bg-green-200');
-                                upvoteBtn.classList.add('bg-green-500', 'text-white');
-                            } else if (userVoteType === 'downvote') {
-                                downvoteBtn.classList.remove('bg-red-100', 'hover:bg-red-200');
-                                downvoteBtn.classList.add('bg-red-500', 'text-white');
-                            }
-                        });
-                    }
-
-                    // Initial update of button states
-                    updateButtonStates();
-
-                    // Upvote buttons
-                    document.querySelectorAll('.upvote-btn').forEach(button => {
-                        button.addEventListener('click', async function() {
-                            const propositionId = this.dataset.id;
-                            const countSpan = this.querySelector('.upvote-count');
-                            const downvoteBtn = this.closest('.proposition-card').querySelector('.downvote-btn');
+                    // Use event delegation for all voting buttons
+                    document.body.addEventListener('click', async function(e) {
+                        // Handle upvote buttons
+                        if (e.target.closest('.upvote-btn')) {
+                            e.preventDefault();
+                            const button = e.target.closest('.upvote-btn');
+                            const propositionId = button.dataset.id;
+                            const countSpan = button.querySelector('.upvote-count');
+                            const downvoteBtn = button.closest('.proposition-card').querySelector('.downvote-btn');
                             const downvoteCountSpan = downvoteBtn.querySelector('.downvote-count');
-                            const svg = this.querySelector('svg');
-                            const wasUpvoted = this.dataset.userVoted === 'true';
+                            const svg = button.querySelector('svg');
+                            const wasUpvoted = button.dataset.userVoted === 'true';
 
                             try {
                                 const response = await fetch(`/propositions/${propositionId}/upvote`, {
@@ -245,20 +215,17 @@
                                         downvoteCountSpan.textContent = data.downvotes;
                                     }
 
-                                    // Determine if user is now upvoting (not removing upvote)
-                                    const isNowUpvoting = !wasUpvoted;
-
                                     if (wasUpvoted) {
                                         // User is removing their upvote
-                                        this.dataset.userVoted = 'false';
+                                        button.dataset.userVoted = 'false';
                                     } else {
                                         // User is adding upvote - TRIGGER ANIMATION!
-                                        this.classList.add('upvote-animate', 'upvote-hearts');
-                                        this.dataset.userVoted = 'true';
+                                        button.classList.add('upvote-animate', 'upvote-hearts');
+                                        button.dataset.userVoted = 'true';
 
                                         // Remove animation classes after animation completes
                                         setTimeout(() => {
-                                            this.classList.remove('upvote-animate', 'upvote-hearts');
+                                            button.classList.remove('upvote-animate', 'upvote-hearts');
                                         }, 1000);
 
                                         // If user had downvoted before, update downvote button
@@ -270,18 +237,18 @@
                             } catch (error) {
                                 // Error handled silently
                             }
-                        });
-                    });
+                        }
 
-                    // Downvote buttons
-                    document.querySelectorAll('.downvote-btn').forEach(button => {
-                        button.addEventListener('click', async function() {
-                            const propositionId = this.dataset.id;
-                            const countSpan = this.querySelector('.downvote-count');
-                            const upvoteBtn = this.closest('.proposition-card').querySelector('.upvote-btn');
+                        // Handle downvote buttons
+                        if (e.target.closest('.downvote-btn')) {
+                            e.preventDefault();
+                            const button = e.target.closest('.downvote-btn');
+                            const propositionId = button.dataset.id;
+                            const countSpan = button.querySelector('.downvote-count');
+                            const upvoteBtn = button.closest('.proposition-card').querySelector('.upvote-btn');
                             const upvoteCountSpan = upvoteBtn.querySelector('.upvote-count');
-                            const svg = this.querySelector('svg');
-                            const wasDownvoted = this.dataset.userVoted === 'true';
+                            const svg = button.querySelector('svg');
+                            const wasDownvoted = button.dataset.userVoted === 'true';
 
                             try {
                                 const response = await fetch(`/propositions/${propositionId}/downvote`, {
@@ -302,27 +269,27 @@
                                     }
 
                                     // Simple animation for downvote (subtle)
-                                    this.classList.add('downvote-animate');
-                                    setTimeout(() => this.classList.remove('downvote-animate'), 300);
+                                    button.classList.add('downvote-animate');
+                                    setTimeout(() => button.classList.remove('downvote-animate'), 300);
 
                                     if (wasDownvoted) {
                                         // User is removing their downvote
-                                        this.classList.remove('bg-red-500', 'text-white', 'shadow-md');
-                                        this.classList.add('hover:bg-red-50');
+                                        button.classList.remove('bg-red-500', 'text-white', 'shadow-md');
+                                        button.classList.add('hover:bg-red-50');
                                         svg.classList.remove('text-white');
                                         svg.classList.add('text-red-500');
                                         countSpan.classList.remove('text-white');
                                         countSpan.classList.add('text-red-500');
-                                        this.dataset.userVoted = 'false';
+                                        button.dataset.userVoted = 'false';
                                     } else {
                                         // User is adding downvote
-                                        this.classList.remove('hover:bg-red-50');
-                                        this.classList.add('bg-red-500', 'text-white', 'shadow-md');
+                                        button.classList.remove('hover:bg-red-50');
+                                        button.classList.add('bg-red-500', 'text-white', 'shadow-md');
                                         svg.classList.remove('text-red-500');
                                         svg.classList.add('text-white');
                                         countSpan.classList.remove('text-red-500');
                                         countSpan.classList.add('text-white');
-                                        this.dataset.userVoted = 'true';
+                                        button.dataset.userVoted = 'true';
 
                                         // If user had upvoted before, update upvote button
                                         if (upvoteBtn.dataset.userVoted === 'true') {
@@ -340,14 +307,14 @@
                             } catch (error) {
                                 // Error handled silently
                             }
-                        });
-                    });
+                        }
 
-                    // Delete buttons
-                    document.querySelectorAll('.delete-btn').forEach(button => {
-                        button.addEventListener('click', async function() {
-                            const propositionId = this.dataset.id;
-                            const propositionCard = this.closest('.proposition-card');
+                        // Handle delete buttons
+                        if (e.target.closest('.delete-btn')) {
+                            e.preventDefault();
+                            const button = e.target.closest('.delete-btn');
+                            const propositionId = button.dataset.id;
+                            const propositionCard = button.closest('.proposition-card');
 
                             // Show confirmation dialog
                             if (!confirm('Are you sure you want to delete this proposition? This action cannot be undone.')) {
@@ -391,114 +358,36 @@
                             } catch (error) {
                                 alert('An error occurred while deleting the proposition');
                             }
-                        });
-                    });
-                });
-            @endauth
+                        }
 
-            // Comments functionality
-            document.addEventListener('DOMContentLoaded', function() {
-                // Toggle comments section
-                document.querySelectorAll('.comment-toggle-btn').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const propositionId = this.dataset.id;
-                        const card = this.closest('.proposition-card');
-                        const commentsSection = card.querySelector('.comments-section');
+                        // Handle comment toggle buttons
+                        if (e.target.closest('.comment-toggle-btn')) {
+                            e.preventDefault();
+                            const button = e.target.closest('.comment-toggle-btn');
+                            const propositionId = button.dataset.id;
+                            const card = button.closest('.proposition-card');
+                            const commentsSection = card.querySelector('.comments-section');
 
-                        if (commentsSection) {
-                            commentsSection.classList.toggle('hidden');
+                            if (commentsSection) {
+                                commentsSection.classList.toggle('hidden');
 
-                            // Toggle active state on button
-                            if (commentsSection.classList.contains('hidden')) {
-                                this.classList.remove('bg-brand', 'text-black');
-                            } else {
-                                this.classList.add('bg-brand', 'text-black');
-                                // Focus on the comment input if authenticated
-                                const commentInput = commentsSection.querySelector('input[name="content"]');
-                                if (commentInput) {
-                                    setTimeout(() => commentInput.focus(), 100);
+                                if (commentsSection.classList.contains('hidden')) {
+                                    button.classList.remove('bg-brand', 'text-black');
+                                } else {
+                                    button.classList.add('bg-brand', 'text-black');
+                                    const commentInput = commentsSection.querySelector('input[name="content"]');
+                                    if (commentInput) {
+                                        setTimeout(() => commentInput.focus(), 100);
+                                    }
                                 }
                             }
                         }
-                    });
-                });
 
-                // Submit comment
-                document.querySelectorAll('.comment-form').forEach(form => {
-                    form.addEventListener('submit', async function(e) {
-                        e.preventDefault();
-
-                        const propositionId = this.dataset.propositionId;
-                        const contentInput = this.querySelector('input[name="content"]');
-                        const content = contentInput.value.trim();
-
-                        if (!content) return;
-
-                        try {
-                            const response = await fetch(`/propositions/${propositionId}/comments`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                                },
-                                body: JSON.stringify({ content })
-                            });
-
-                            if (response.ok) {
-                                const data = await response.json();
-                                const commentsList = this.closest('.comments-section').querySelector('.comments-list');
-
-                                // Create new comment element
-                                const commentHtml = `
-                                    <div class="comment-item flex gap-3" data-comment-id="${data.comment.id}">
-                                        <img src="${data.comment.user.profile_picture_url}" alt="${data.comment.user.display_name}" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
-                                        <div class="flex-1">
-                                            <div class="flex items-center gap-2 mb-1">
-                                                <span class="font-medium text-primary text-sm">${data.comment.user.display_name}</span>
-                                                <span class="text-xs text-muted">${data.comment.created_at}</span>
-                                                ${data.comment.can_delete ? `
-                                                    <button class="delete-comment-btn text-xs text-muted hover:text-red-500 ml-auto" data-comment-id="${data.comment.id}">
-                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                                        </svg>
-                                                    </button>
-                                                ` : ''}
-                                            </div>
-                                            <p class="text-primary text-sm">${data.comment.content}</p>
-                                        </div>
-                                    </div>
-                                `;
-
-                                commentsList.insertAdjacentHTML('beforeend', commentHtml);
-
-                                // Update comment count
-                                const card = this.closest('.proposition-card');
-                                const countSpan = card.querySelector('.comment-count');
-                                if (countSpan) {
-                                    countSpan.textContent = parseInt(countSpan.textContent) + 1;
-                                }
-
-                                // Clear input
-                                contentInput.value = '';
-
-                                // Re-attach delete event listeners
-                                attachDeleteCommentListeners();
-                            }
-                        } catch (error) {
-                            // Error handled silently
-                        }
-                    });
-                });
-
-                // Delete comment function
-                function attachDeleteCommentListeners() {
-                    document.querySelectorAll('.delete-comment-btn').forEach(button => {
-                        button.replaceWith(button.cloneNode(true));
-                    });
-
-                    document.querySelectorAll('.delete-comment-btn').forEach(button => {
-                        button.addEventListener('click', async function() {
-                            const commentId = this.dataset.commentId;
+                        // Handle comment delete buttons
+                        if (e.target.closest('.delete-comment-btn')) {
+                            e.preventDefault();
+                            const button = e.target.closest('.delete-comment-btn');
+                            const commentId = button.dataset.commentId;
 
                             if (!confirm('Delete this comment?')) return;
 
@@ -512,28 +401,86 @@
                                 });
 
                                 if (response.ok) {
-                                    const commentItem = this.closest('.comment-item');
-                                    const card = this.closest('.proposition-card');
+                                    const commentItem = button.closest('.comment-item');
+                                    const card = button.closest('.proposition-card');
 
-                                    // Update count
                                     const countSpan = card.querySelector('.comment-count');
                                     if (countSpan) {
                                         countSpan.textContent = Math.max(0, parseInt(countSpan.textContent) - 1);
                                     }
 
-                                    // Remove comment
                                     commentItem.remove();
                                 }
                             } catch (error) {
                                 // Error handled silently
                             }
-                        });
+                        }
                     });
-                }
 
-                // Initial attachment
-                attachDeleteCommentListeners();
-            });
+                    // Handle comment form submissions
+                    document.body.addEventListener('submit', async function(e) {
+                        if (e.target.classList.contains('comment-form')) {
+                            e.preventDefault();
+                            const form = e.target;
+                            const propositionId = form.dataset.propositionId;
+                            const contentInput = form.querySelector('input[name="content"]');
+                            const content = contentInput.value.trim();
+
+                            if (!content) return;
+
+                            try {
+                                const response = await fetch(`/propositions/${propositionId}/comments`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                    },
+                                    body: JSON.stringify({ content })
+                                });
+
+                                if (response.ok) {
+                                    const data = await response.json();
+                                    const commentsList = form.closest('.comments-section').querySelector('.comments-list');
+
+                                    const commentHtml = `
+                                        <div class="comment-item flex gap-3" data-comment-id="${data.comment.id}">
+                                            <img src="${data.comment.user.profile_picture_url}" alt="${data.comment.user.display_name}" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+                                            <div class="flex-1">
+                                                <div class="flex items-center gap-2 mb-1">
+                                                    <span class="font-medium text-primary text-sm">${data.comment.user.display_name}</span>
+                                                    <span class="text-xs text-muted">${data.comment.created_at}</span>
+                                                    ${data.comment.can_delete ? `
+                                                        <button class="delete-comment-btn text-xs text-muted hover:text-red-500 ml-auto" data-comment-id="${data.comment.id}">
+                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                            </svg>
+                                                        </button>
+                                                    ` : ''}
+                                                </div>
+                                                <p class="text-primary text-sm">${data.comment.content}</p>
+                                            </div>
+                                        </div>
+                                    `;
+
+                                    commentsList.insertAdjacentHTML('beforeend', commentHtml);
+
+                                    const card = form.closest('.proposition-card');
+                                    const countSpan = card.querySelector('.comment-count');
+                                    if (countSpan) {
+                                        countSpan.textContent = parseInt(countSpan.textContent) + 1;
+                                    }
+
+                                    contentInput.value = '';
+                                }
+                            } catch (error) {
+                                // Error handled silently
+                            }
+                        }
+                    });
+                });
+            @endauth
+
+
 
             // Sorting functionality
             document.addEventListener('DOMContentLoaded', function() {
@@ -610,8 +557,8 @@
                             currentPage++;
                         }
 
-                        hasMorePages = data.hasMore;
-
+                        hasMorePages = data.hasMore || false;
+                        
                         // Update total count if provided
                         if (data.total) {
                             const countElement = document.getElementById('proposition-count');
@@ -621,14 +568,16 @@
                         }
 
                         // Show end of content message if no more pages
-                        if (!hasMorePages) {
-                            document.getElementById('end-of-content').classList.remove('hidden');
-                        } else {
-                            document.getElementById('end-of-content').classList.add('hidden');
+                        const endOfContentElement = document.getElementById('end-of-content');
+                        if (endOfContentElement) {
+                            if (!hasMorePages) {
+                                endOfContentElement.classList.remove('hidden');
+                            } else {
+                                endOfContentElement.classList.add('hidden');
+                            }
                         }
 
-                        // Reattach event listeners for new elements
-                        reattachEventListeners();
+                        // No need to reattach event listeners with event delegation
                     })
                     .catch(error => {
                         // Error handled silently
@@ -637,21 +586,6 @@
                         isLoading = false;
                         document.getElementById('loading-spinner').classList.add('hidden');
                     });
-                }
-
-                function reattachEventListeners() {
-                    // Reattach voting listeners
-                    @auth
-                        attachVotingListeners();
-                    @endauth
-
-                    // Reattach comment listeners
-                    attachCommentListeners();
-
-                    // Reattach delete listeners
-                    @auth
-                        attachDeleteListeners();
-                    @endauth
                 }
 
                 // Infinite scroll
@@ -691,315 +625,6 @@
                     loadPropositions('top', true);
                 });
             });
-
-            // Helper functions for reattaching event listeners
-            @auth
-            function attachVotingListeners() {
-                // Remove existing listeners and reattach
-                document.querySelectorAll('.upvote-btn').forEach(button => {
-                    const newButton = button.cloneNode(true);
-                    button.parentNode.replaceChild(newButton, button);
-                });
-
-                document.querySelectorAll('.downvote-btn').forEach(button => {
-                    const newButton = button.cloneNode(true);
-                    button.parentNode.replaceChild(newButton, button);
-                });
-
-                // Upvote functionality (reattach)
-                document.querySelectorAll('.upvote-btn').forEach(button => {
-                    button.addEventListener('click', async function() {
-                        const propositionId = this.dataset.id;
-                        const countSpan = this.querySelector('.upvote-count');
-                        const downvoteBtn = this.closest('.proposition-card').querySelector('.downvote-btn');
-                        const downvoteCountSpan = downvoteBtn.querySelector('.downvote-count');
-                        const svg = this.querySelector('svg');
-                        const wasUpvoted = this.dataset.userVoted === 'true';
-
-                        try {
-                            const response = await fetch(`/propositions/${propositionId}/upvote`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                                }
-                            });
-
-                            if (response.ok) {
-                                const data = await response.json();
-                                countSpan.textContent = data.upvotes;
-                                if (downvoteCountSpan) {
-                                    downvoteCountSpan.textContent = data.downvotes;
-                                }
-
-                                const isNowUpvoting = !wasUpvoted;
-
-                                if (wasUpvoted) {
-                                    // User is removing their upvote
-                                    this.dataset.userVoted = 'false';
-                                } else {
-                                    // User is adding upvote - TRIGGER ANIMATION!
-                                    this.classList.add('upvote-animate', 'upvote-hearts');
-                                    this.dataset.userVoted = 'true';
-
-                                    // Remove animation classes after animation completes
-                                    setTimeout(() => {
-                                        this.classList.remove('upvote-animate', 'upvote-hearts');
-                                    }, 1000);
-
-                                    // If user had downvoted before, update downvote button
-                                    if (downvoteBtn.dataset.userVoted === 'true') {
-                                        downvoteBtn.dataset.userVoted = 'false';
-                                    }
-                                }
-                            }
-                        } catch (error) {
-                            // Error handled silently
-                        }
-                    });
-                });
-
-                // Downvote functionality (reattach)
-                document.querySelectorAll('.downvote-btn').forEach(button => {
-                    button.addEventListener('click', async function() {
-                        const propositionId = this.dataset.id;
-                        const countSpan = this.querySelector('.downvote-count');
-                        const upvoteBtn = this.closest('.proposition-card').querySelector('.upvote-btn');
-                        const upvoteCountSpan = upvoteBtn.querySelector('.upvote-count');
-                        const svg = this.querySelector('svg');
-                        const wasDownvoted = this.dataset.userVoted === 'true';
-
-                        try {
-                            const response = await fetch(`/propositions/${propositionId}/downvote`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                                }
-                            });
-
-                            if (response.ok) {
-                                const data = await response.json();
-                                countSpan.textContent = data.downvotes;
-                                if (upvoteCountSpan) {
-                                    upvoteCountSpan.textContent = data.upvotes;
-                                }
-
-                                // Simple animation for downvote (subtle)
-                                this.classList.add('downvote-animate');
-                                setTimeout(() => this.classList.remove('downvote-animate'), 300);
-
-                                if (wasDownvoted) {
-                                    // User is removing their downvote
-                                    this.dataset.userVoted = 'false';
-                                } else {
-                                    // User is adding downvote
-                                    this.dataset.userVoted = 'true';
-
-                                    // If user had upvoted before, update upvote button
-                                    if (upvoteBtn.dataset.userVoted === 'true') {
-                                        upvoteBtn.dataset.userVoted = 'false';
-                                    }
-                                }
-                            }
-                        } catch (error) {
-                            // Error handled silently
-                        }
-                    });
-                });
-            }
-
-            function attachDeleteListeners() {
-                document.querySelectorAll('.delete-btn').forEach(button => {
-                    const newButton = button.cloneNode(true);
-                    button.parentNode.replaceChild(newButton, button);
-                });
-
-                document.querySelectorAll('.delete-btn').forEach(button => {
-                    button.addEventListener('click', async function() {
-                        const propositionId = this.dataset.id;
-                        const propositionCard = this.closest('.proposition-card');
-
-                        if (!confirm('Are you sure you want to delete this proposition? This action cannot be undone.')) {
-                            return;
-                        }
-
-                        try {
-                            const response = await fetch(`/propositions/${propositionId}`, {
-                                method: 'DELETE',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                                }
-                            });
-
-                            if (response.ok) {
-                                propositionCard.style.transition = 'opacity 0.3s ease-out';
-                                propositionCard.style.opacity = '0';
-
-                                setTimeout(() => {
-                                    propositionCard.remove();
-
-                                    const propositionsList = document.getElementById('propositions-list');
-                                    const countElement = document.getElementById('proposition-count');
-                                    if (countElement) {
-                                        countElement.textContent = propositionsList.children.length;
-                                    }
-
-                                    if (propositionsList.children.length === 0) {
-                                        propositionsList.innerHTML = '<div class="frosted-card p-12 text-center"><svg class="w-16 h-16 mx-auto mb-4 text-muted opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg><p class="text-muted text-lg mb-2">No propositions yet</p><p class="text-muted text-sm">Be the first to share your idea!</p></div>';
-                                    }
-                                }, 300);
-                            } else {
-                                const data = await response.json();
-                                alert(data.error || 'Error deleting proposition');
-                            }
-                        } catch (error) {
-                            alert('An error occurred while deleting the proposition');
-                        }
-                    });
-                });
-            }
-            @endauth
-
-            function attachCommentListeners() {
-                // Comment toggle buttons
-                document.querySelectorAll('.comment-toggle-btn').forEach(button => {
-                    const newButton = button.cloneNode(true);
-                    button.parentNode.replaceChild(newButton, button);
-                });
-
-                document.querySelectorAll('.comment-toggle-btn').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const propositionId = this.dataset.id;
-                        const card = this.closest('.proposition-card');
-                        const commentsSection = card.querySelector('.comments-section');
-
-                        if (commentsSection) {
-                            commentsSection.classList.toggle('hidden');
-
-                            if (commentsSection.classList.contains('hidden')) {
-                                this.classList.remove('bg-brand', 'text-black');
-                            } else {
-                                this.classList.add('bg-brand', 'text-black');
-                                const commentInput = commentsSection.querySelector('input[name="content"]');
-                                if (commentInput) {
-                                    setTimeout(() => commentInput.focus(), 100);
-                                }
-                            }
-                        }
-                    });
-                });
-
-                // Comment forms
-                document.querySelectorAll('.comment-form').forEach(form => {
-                    const newForm = form.cloneNode(true);
-                    form.parentNode.replaceChild(newForm, form);
-                });
-
-                document.querySelectorAll('.comment-form').forEach(form => {
-                    form.addEventListener('submit', async function(e) {
-                        e.preventDefault();
-
-                        const propositionId = this.dataset.propositionId;
-                        const contentInput = this.querySelector('input[name="content"]');
-                        const content = contentInput.value.trim();
-
-                        if (!content) return;
-
-                        try {
-                            const response = await fetch(`/propositions/${propositionId}/comments`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                                },
-                                body: JSON.stringify({ content })
-                            });
-
-                            if (response.ok) {
-                                const data = await response.json();
-                                const commentsList = this.closest('.comments-section').querySelector('.comments-list');
-
-                                const commentHtml = `
-                                    <div class="comment-item flex gap-3" data-comment-id="${data.comment.id}">
-                                        <img src="${data.comment.user.profile_picture_url}" alt="${data.comment.user.display_name}" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
-                                        <div class="flex-1">
-                                            <div class="flex items-center gap-2 mb-1">
-                                                <span class="font-medium text-primary text-sm">${data.comment.user.display_name}</span>
-                                                <span class="text-xs text-muted">${data.comment.created_at}</span>
-                                                ${data.comment.can_delete ? `
-                                                    <button class="delete-comment-btn text-xs text-muted hover:text-red-500 ml-auto" data-comment-id="${data.comment.id}">
-                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                                        </svg>
-                                                    </button>
-                                                ` : ''}
-                                            </div>
-                                            <p class="text-primary text-sm">${data.comment.content}</p>
-                                        </div>
-                                    </div>
-                                `;
-
-                                commentsList.insertAdjacentHTML('beforeend', commentHtml);
-
-                                const card = this.closest('.proposition-card');
-                                const countSpan = card.querySelector('.comment-count');
-                                if (countSpan) {
-                                    countSpan.textContent = parseInt(countSpan.textContent) + 1;
-                                }
-
-                                contentInput.value = '';
-                                attachCommentDeleteListeners();
-                            }
-                        } catch (error) {
-                            // Error handled silently
-                        }
-                    });
-                });
-
-                // Initial attachment of delete listeners
-                attachCommentDeleteListeners();
-            }
-
-            function attachCommentDeleteListeners() {
-                document.querySelectorAll('.delete-comment-btn').forEach(button => {
-                    const newButton = button.cloneNode(true);
-                    button.parentNode.replaceChild(newButton, button);
-                });
-
-                document.querySelectorAll('.delete-comment-btn').forEach(button => {
-                    button.addEventListener('click', async function() {
-                        const commentId = this.dataset.commentId;
-
-                        if (!confirm('Delete this comment?')) return;
-
-                        try {
-                            const response = await fetch(`/comments/${commentId}`, {
-                                method: 'DELETE',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                                }
-                            });
-
-                            if (response.ok) {
-                                const commentItem = this.closest('.comment-item');
-                                const card = this.closest('.proposition-card');
-
-                                const countSpan = card.querySelector('.comment-count');
-                                if (countSpan) {
-                                    countSpan.textContent = Math.max(0, parseInt(countSpan.textContent) - 1);
-                                }
-
-                                commentItem.remove();
-                            }
-                        } catch (error) {
-                            // Error handled silently
-                        }
-                    });
-                });
-            }
 
             // Modal functionality
             document.addEventListener('DOMContentLoaded', function() {
