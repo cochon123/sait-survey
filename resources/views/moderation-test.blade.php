@@ -105,7 +105,7 @@
                         result.innerHTML = `<span class="text-red-600">❌ Pseudonyme rejeté</span><br><small>${moderationResult.reason}</small>`;
                     }
                 } catch (error) {
-                    result.innerHTML = '<span class="text-red-600">❌ Erreur de modération</span>';
+                    result.innerHTML = '<span class="text-red-600">❌ Moderation Error</span>';
                 }
             });
 
@@ -128,7 +128,7 @@
                         result.innerHTML = `<span class="text-red-600">❌ Proposition rejetée</span><br><small>${moderationResult.reason}</small>`;
                     }
                 } catch (error) {
-                    result.innerHTML = '<span class="text-red-600">❌ Erreur de modération</span>';
+                    result.innerHTML = '<span class="text-red-600">❌ Moderation Error</span>';
                 }
             });
 
@@ -151,7 +151,7 @@
                         result.innerHTML = `<span class="text-red-600">❌ Commentaire rejeté</span><br><small>${moderationResult.reason}</small>`;
                     }
                 } catch (error) {
-                    result.innerHTML = '<span class="text-red-600">❌ Erreur de modération</span>';
+                    result.innerHTML = '<span class="text-red-600">❌ Moderation Error</span>';
                 }
             });
         });

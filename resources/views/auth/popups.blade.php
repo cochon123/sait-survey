@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Basculement vers l'onglet de connexion
+  // Switch to login tab
   if (loginTab) {
     loginTab.addEventListener('click', function() {
       loginTab.className = 'flex-1 py-2 px-4 text-center border-b-2 border-blue-500 text-blue-600 font-medium';
@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Basculement vers l'onglet d'inscription
+  // Switch to registration tab
   if (registerTab) {
     registerTab.addEventListener('click', function() {
       registerTab.className = 'flex-1 py-2 px-4 text-center border-b-2 border-blue-500 text-blue-600 font-medium';

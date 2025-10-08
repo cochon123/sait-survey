@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Services\ContentModerationService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 
 class ModerationController extends Controller
@@ -21,22 +20,11 @@ class ModerationController extends Controller
      */
     public function checkNickname(Request $request)
     {
-        Log::info('Moderation request received', [
-            'type' => 'comment',
-            'data' => $request->all(),
-            'user_id' => Auth::id()
-        ]);
-        
         $request->validate([
             'nickname' => 'required|string|max:25'
         ]);
 
         $result = $this->moderationService->moderateNickname($request->nickname);
-
-        Log::info('Moderation response', [
-            'type' => 'nickname',
-            'result' => $result
-        ]);
 
         return response()->json([
             'approved' => $result['approved'],
@@ -49,12 +37,6 @@ class ModerationController extends Controller
      */
     public function checkProposition(Request $request)
     {
-        Log::info('Moderation request received', [
-            'type' => 'proposition',
-            'data' => $request->all(),
-            'user_id' => Auth::id()
-        ]);
-
         $request->validate([
             'title' => 'nullable|string|max:255',
             'content' => 'required|string|max:1000'
@@ -63,19 +45,7 @@ class ModerationController extends Controller
         $title = $request->input('title', '');
         $content = $request->input('content');
         
-        Log::info('Extracted data for moderation', [
-            'title' => $title,
-            'content' => $content,
-            'title_type' => gettype($title),
-            'content_type' => gettype($content)
-        ]);
-
         $result = $this->moderationService->moderateProposition($title, $content);
-
-        Log::info('Moderation response', [
-            'type' => 'proposition',
-            'result' => $result
-        ]);
 
         return response()->json([
             'approved' => $result['approved'],

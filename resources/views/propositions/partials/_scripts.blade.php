@@ -3,67 +3,36 @@
     // Character counter for authenticated user form
     @auth
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('[Scripts] DOM loaded, setting up character counter');
             const textarea = document.getElementById('content');
             const charCount = document.getElementById('char-count');
-            
-            console.log('[Scripts] Elements found - textarea:', !!textarea, 'charCount:', !!charCount);
-            console.log('[Scripts] Elements IDs - textarea:', textarea?.id, 'charCount:', charCount?.id);
 
             if (textarea && charCount) {
-                console.log('[Scripts] Setting up character counter event listener');
                 textarea.addEventListener('input', function() {
                     charCount.textContent = this.value.length;
-                    console.log('[Scripts] Character count updated:', this.value.length);
-                });
-            } else {
-                console.warn('[Scripts] Character counter elements not found - textarea:', !!textarea, 'charCount:', !!charCount);
-                
-                // Essayons de trouver tous les éléments similaires
-                const allTextareas = document.querySelectorAll('textarea');
-                const allCharCounts = document.querySelectorAll('[id*="char"]');
-                console.log('[Scripts] All textareas found:', allTextareas.length);
-                console.log('[Scripts] All char-related elements found:', allCharCounts.length);
-                
-                allTextareas.forEach((el, index) => {
-                    console.log(`[Scripts] Textarea ${index}:`, el.id, el.className);
-                });
-                
-                allCharCounts.forEach((el, index) => {
-                    console.log(`[Scripts] Char element ${index}:`, el.id, el.className);
                 });
             }
         });
 
-        // Modération du formulaire de proposition
+        // Moderation for proposition form
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('[Scripts] DOMContentLoaded fired, looking for proposition form');
             const propositionForm = document.getElementById('proposition-form');
-            console.log('[Scripts] Proposition form found:', !!propositionForm);
             
-            if (propositionForm) {
-                console.log('[Scripts] Calling moderateFormSubmission for proposition form');
-                
-                if (typeof moderateFormSubmission === 'function') {
-                    console.log('[Scripts] moderateFormSubmission function is available');
-                    moderateFormSubmission(
-                        propositionForm,
-                        'proposition',
-                        (form) => {
-                            const input = form.querySelector('#content');
-                            const data = {
-                                content: input.value.trim(),
-                                title: '' // Pas de titre pour les propositions
-                            };
-                            console.log('[Scripts] Data extracted from form:', data);
-                            return data;
-                        },
-                        (form, data) => {
-                            console.log('[Scripts] Content approved, submitting form with data:', data);
-                            // Contenu approuvé : soumettre le formulaire normalement
-                            const formData = new FormData(form);
-                            
-                            fetch(form.action, {
+            if (propositionForm && typeof moderateFormSubmission === 'function') {
+                moderateFormSubmission(
+                    propositionForm,
+                    'proposition',
+                    (form) => {
+                        const input = form.querySelector('#content');
+                        return {
+                            content: input.value.trim(),
+                            title: ''
+                        };
+                    },
+                    (form, data) => {
+                        // Content approved: submit form normally
+                        const formData = new FormData(form);
+                        
+                        fetch(form.action, {
                             method: 'POST',
                             body: formData,
                             headers: {
@@ -71,27 +40,17 @@
                             }
                         })
                         .then(response => {
-                            console.log('[Scripts] Form submission response:', response.status, response.ok);
                             if (response.ok) {
-                                // Recharger la page pour voir la nouvelle proposition
-                                console.log('[Scripts] Form submitted successfully, reloading page');
                                 window.location.reload();
                             } else {
-                                throw new Error('Erreur lors de la soumission');
+                                throw new Error('Submission error');
                             }
                         })
                         .catch(error => {
-                            console.error('[Scripts] Form submission error:', error);
-                            alert('Une erreur est survenue lors de la soumission');
+                            alert('An error occurred during submission');
                         });
                     }
                 );
-                } else {
-                    console.error('[Scripts] moderateFormSubmission function is not available');
-                    console.log('[Scripts] Available functions on window:', Object.keys(window));
-                }
-            } else {
-                console.log('[Scripts] No proposition form found');
             }
         });
     @endauth
@@ -427,14 +386,14 @@
                         const moderationResult = await window.moderationService.checkComment(content);
                         
                         if (!moderationResult.approved) {
-                            // Contenu rejeté
+                            // Content rejected
                             window.moderationService.showPopup(moderationResult.reason, () => {
                                 contentInput.focus();
                             });
                             return;
                         }
 
-                        // Contenu approuvé : soumettre
+                        // Content approved: submit
                         const response = await fetch(`/propositions/${propositionId}/comments`, {
                             method: 'POST',
                             headers: {
@@ -479,11 +438,11 @@
 
                             contentInput.value = '';
                         } else {
-                            throw new Error('Erreur lors de l\'ajout du commentaire');
+                            throw new Error('Error adding comment');
                         }
                     } catch (error) {
-                        console.error('Erreur:', error);
-                        // En cas d'erreur, ne pas afficher d'alerte pour éviter de perturber l'UX
+                        console.error('Error:', error);
+                        // In case of error, don't show alert to avoid disrupting UX
                     } finally {
                         // Restaurer le bouton
                         submitBtn.disabled = false;
@@ -679,7 +638,7 @@
             });
         }
 
-        // Basculement vers l'onglet de connexion
+        // Toggle to login tab
         if (loginTab) {
             loginTab.addEventListener('click', function() {
                 loginTab.className = 'flex-1 py-2 px-4 text-center border-b-2 border-blue-500 text-blue-600 font-medium';
@@ -689,7 +648,7 @@
             });
         }
 
-        // Basculement vers l'onglet d'inscription
+        // Toggle to registration tab
         if (registerTab) {
             registerTab.addEventListener('click', function() {
                 registerTab.className = 'flex-1 py-2 px-4 text-center border-b-2 border-blue-500 text-blue-600 font-medium';

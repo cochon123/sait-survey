@@ -8,8 +8,8 @@
                 </svg>
             </div>
             <div>
-                <h3 class="text-lg font-semibold text-text">Contenu rejeté</h3>
-                <p class="text-sm text-text-muted">Votre contenu ne respecte pas nos directives</p>
+                <h3 class="text-lg font-semibold text-text">Content Rejected</h3>
+                <p class="text-sm text-text-muted">Your content does not meet our guidelines</p>
             </div>
         </div>
         
@@ -20,7 +20,7 @@
         
         <div class="flex gap-3">
             <button id="moderation-edit-btn" class="flex-1 bg-brand text-black px-4 py-2 rounded-lg hover:bg-yellow-400 transition-colors">
-                Modifier
+                Edit
             </button>
             <button id="moderation-close-btn" class="flex-1 bg-bg-light text-text px-4 py-2 rounded-lg hover:bg-opacity-80 transition-colors">
                 Fermer

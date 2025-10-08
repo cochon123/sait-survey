@@ -1,35 +1,20 @@
 /**
- * Service de modération de contenu
- * Gère les vérifications avant soumission et les popups de rejet
+ * Content moderation service
+ * Handles pre-submission checks and rejection popups
  */
 class ContentModerationService {
     constructor() {
-        console.log('[Moderation] Initializing ContentModerationService');
         this.popup = document.getElementById('moderation-popup');
         this.reasonElement = document.getElementById('moderation-reason');
         this.editBtn = document.getElementById('moderation-edit-btn');
         this.closeBtn = document.getElementById('moderation-close-btn');
         this.currentCallback = null;
         
-        console.log('[Moderation] Elements found:', {
-            popup: !!this.popup,
-            reasonElement: !!this.reasonElement,
-            editBtn: !!this.editBtn,
-            closeBtn: !!this.closeBtn
-        });
-        
         this.initEventListeners();
     }
     
     initEventListeners() {
-        console.log('[Moderation] Initializing event listeners');
-        
-        if (!this.closeBtn || !this.popup || !this.editBtn) {
-            console.error('[Moderation] Required elements not found for event listeners');
-            return;
-        }
-        
-        // Fermer le popup
+        // Close the popup
         this.closeBtn.addEventListener('click', () => this.hidePopup());
         this.popup.addEventListener('click', (e) => {
             if (e.target === this.popup) {
@@ -37,7 +22,7 @@ class ContentModerationService {
             }
         });
         
-        // Bouton modifier
+        // Edit button
         this.editBtn.addEventListener('click', () => {
             this.hidePopup();
             if (this.currentCallback) {
@@ -45,46 +30,41 @@ class ContentModerationService {
             }
         });
         
-        // Fermer avec Escape
+        // Close with Escape
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && !this.popup.classList.contains('hidden')) {
                 this.hidePopup();
             }
         });
-        
-        console.log('[Moderation] Event listeners initialized successfully');
     }
     
     /**
-     * Vérifie la modération d'un pseudonyme
+     * Check nickname moderation
      */
     async checkNickname(nickname) {
         return this.makeRequest('/moderation/nickname', { nickname });
     }
     
     /**
-     * Vérifie la modération d'une proposition
+     * Check proposition moderation
      */
     async checkProposition(content, title = '') {
         return this.makeRequest('/moderation/proposition', { content, title });
     }
     
     /**
-     * Vérifie la modération d'un commentaire
+     * Check comment moderation
      */
     async checkComment(content) {
         return this.makeRequest('/moderation/comment', { content });
     }
     
     /**
-     * Effectue la requête de modération
+     * Make moderation request
      */
     async makeRequest(endpoint, data) {
-        console.log('[Moderation] Making request to:', endpoint, 'with data:', data);
-        
         try {
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-            console.log('[Moderation] CSRF token found:', !!csrfToken);
             
             const response = await fetch(endpoint, {
                 method: 'POST',
@@ -95,37 +75,33 @@ class ContentModerationService {
                 body: JSON.stringify(data)
             });
             
-            console.log('[Moderation] Response status:', response.status, response.ok);
-            
             const result = await response.json();
-            console.log('[Moderation] Response data:', result);
             
             if (!response.ok) {
-                throw new Error(result.message || 'Erreur de modération');
+                throw new Error(result.message || 'Moderation error');
             }
             
             return result;
         } catch (error) {
-            console.error('[Moderation] Request failed:', error);
-            // Fallback : approuver en cas d'erreur
-            return { approved: true, reason: 'Modération indisponible' };
+            // Fallback: approve on error
+            return { approved: true, reason: 'Moderation unavailable' };
         }
     }
     
     /**
-     * Affiche le popup de rejet
+     * Show rejection popup
      */
     showPopup(reason, onEditCallback = null) {
         this.reasonElement.textContent = reason;
         this.currentCallback = onEditCallback;
         this.popup.classList.remove('hidden');
         
-        // Focus sur le bouton modifier
+        // Focus on edit button
         this.editBtn.focus();
     }
     
     /**
-     * Masque le popup
+     * Hide popup
      */
     hidePopup() {
         this.popup.classList.add('hidden');
@@ -133,100 +109,95 @@ class ContentModerationService {
     }
     
     /**
-     * Modère du contenu avec gestion automatique du popup
+     * Set up form moderation
      */
-    async moderateWithPopup(type, data, onApproved, onEditCallback = null) {
-        console.log('[Moderation] moderateWithPopup called:', { type, data });
-        let result;
-        
-        switch (type) {
-            case 'nickname':
-                result = await this.checkNickname(data.nickname);
-                break;
-            case 'proposition':
-                result = await this.checkProposition(data.content, data.title);
-                break;
-            case 'comment':
-                result = await this.checkComment(data.content);
-                break;
-            default:
-                console.error('[Moderation] Invalid moderation type:', type);
-                throw new Error('Type de modération invalide');
-        }
-        
-        console.log('[Moderation] Moderation result:', result);
-        
-        if (result.approved) {
-            console.log('[Moderation] Content approved, calling onApproved callback');
-            onApproved();
-        } else {
-            console.log('[Moderation] Content rejected, showing popup with reason:', result.reason);
-            this.showPopup(result.reason, onEditCallback);
-        }
-    }
-}
-
-// Instance globale du service de modération
-window.moderationService = new ContentModerationService();
-
-/**
- * Helper pour modérer avant soumission de formulaire
- */
-function moderateFormSubmission(form, type, dataExtractor, onApproved) {
-    console.log('[Moderation] moderateFormSubmission called for form:', form, 'type:', type);
-    
-    if (!form) {
-        console.error('[Moderation] Form not found for moderation');
-        return;
-    }
-    
-    form.addEventListener('submit', async (e) => {
-        console.log('[Moderation] Form submit event triggered');
-        e.preventDefault();
-        
-        const data = dataExtractor(form);
-        console.log('[Moderation] Extracted data:', data);
+    setupFormModeration(formSelector, config) {
+        const form = document.querySelector(formSelector);
+        if (!form) return;
         
         const submitBtn = form.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
+        const originalText = submitBtn?.textContent || 'Submit';
         
-        // Indicateur de chargement
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Vérification...';
-        console.log('[Moderation] Submit button disabled, starting moderation');
-        
-        try {
-            await window.moderationService.moderateWithPopup(
-                type,
-                data,
-                () => {
-                    console.log('[Moderation] Content approved, calling onApproved callback');
-                    // Contenu approuvé : soumettre le formulaire
-                    onApproved(form, data);
-                },
-                () => {
-                    console.log('[Moderation] Content rejected, user can edit');
-                    // Callback pour modification : focus sur le champ principal
-                    const mainInput = form.querySelector('input[type="text"], textarea');
-                    if (mainInput) {
-                        mainInput.focus();
-                    }
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Verifying...';
+            }
+            
+            try {
+                // Get form data
+                const formData = config.getData(form);
+                
+                // Check moderation
+                let result;
+                if (config.type === 'nickname') {
+                    result = await this.checkNickname(formData.nickname);
+                } else if (config.type === 'proposition') {
+                    result = await this.checkProposition(formData.content, formData.title);
+                } else if (config.type === 'comment') {
+                    result = await this.checkComment(formData.content);
                 }
-            );
-        } catch (error) {
-            console.error('[Moderation] Error during moderation:', error);
-        } finally {
-            // Restaurer le bouton
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
-            console.log('[Moderation] Submit button restored');
-        }
-    });
-    
-    console.log('[Moderation] Event listener added to form');
+                
+                if (result.approved) {
+                    config.onSuccess(form, formData);
+                } else {
+                    this.showPopup(result.reason, () => {
+                        // Focus on the input field when editing
+                        const input = form.querySelector(config.inputSelector);
+                        if (input) input.focus();
+                    });
+                }
+            } catch (error) {
+                config.onError?.(error);
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            }
+        });
+    }
 }
 
-// Export pour utilisation dans d'autres modules
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = ContentModerationService;
-}
+// Global instance for moderation
+window.moderation = new ContentModerationService();
+
+// Auto-setup for proposition forms
+document.addEventListener('DOMContentLoaded', function() {
+    // Configuration for proposition forms
+    window.moderation.setupFormModeration('#proposition-form', {
+        type: 'proposition',
+        inputSelector: '#content',
+        getData: (form) => {
+            const content = form.querySelector('#content')?.value?.trim() || '';
+            return { content, title: '' };
+        },
+        onSuccess: (form, data) => {
+            // Submit form normally
+            const formData = new FormData(form);
+            
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    throw new Error('Submission error');
+                }
+            })
+            .catch(error => {
+                alert('An error occurred during submission');
+            });
+        },
+        onError: (error) => {
+            alert('An error occurred during verification');
+        }
+    });
+});

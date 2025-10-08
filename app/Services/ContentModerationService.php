@@ -3,13 +3,12 @@
 namespace App\Services;
 
 use Gemini\Laravel\Facades\Gemini;
-use Illuminate\Support\Facades\Log;
 use Exception;
 
 class ContentModerationService
 {
     private const DEFAULT_TIMEOUT = 10; // 10 secondes
-    private const MODEL = 'gemini-2.0-flash-lite';
+    private const MODEL = 'gemma-3-1b-it';
     
     /**
      * Modère un pseudonyme utilisateur
@@ -47,61 +46,28 @@ class ContentModerationService
     private function moderate(string $prompt, string $type): array
     {
         try {
-            // Log de la tentative de modération
-            Log::info("Content moderation attempt", [
-                'type' => $type,
-                'prompt_preview' => substr($prompt, 0, 100) . '...'
-            ]);
-            
             // Appel à l'API Gemini avec timeout
             $fullPrompt = $this->getSystemInstruction() . "\n\n" . $prompt;
-            
-            Log::info("Calling Gemini API", [
-                'model' => self::MODEL,
-                'full_prompt_length' => strlen($fullPrompt)
-            ]);
             
             $result = Gemini::generativeModel(model: self::MODEL)
                 ->generateContent($fullPrompt);
             
             $response = $result->text();
             
-            Log::info("Gemini API response received", [
-                'response_length' => strlen($response),
-                'response_preview' => substr($response, 0, 200) . '...'
-            ]);
-            
             // Parse de la réponse JSON
             $cleanResponse = $this->cleanJsonResponse($response);
             $decodedResponse = json_decode($cleanResponse, true);
             
             if (json_last_error() !== JSON_ERROR_NONE) {
-                Log::warning("Invalid JSON response from Gemini", [
-                    'original_response' => $response,
-                    'cleaned_response' => $cleanResponse,
-                    'json_error' => json_last_error_msg()
-                ]);
                 return $this->getFallbackResponse();
             }
             
             // Validation de la structure de réponse
             if (!isset($decodedResponse['decision']) || !isset($decodedResponse['reasoning'])) {
-                Log::warning("Invalid response structure from Gemini", [
-                    'response' => $decodedResponse,
-                    'has_decision' => isset($decodedResponse['decision']),
-                    'has_reasoning' => isset($decodedResponse['reasoning'])
-                ]);
                 return $this->getFallbackResponse();
             }
             
             $isSafe = strtolower($decodedResponse['decision']) === 'safe';
-            
-            Log::info("Content moderation result", [
-                'type' => $type,
-                'decision' => $decodedResponse['decision'],
-                'safe' => $isSafe,
-                'reasoning' => $decodedResponse['reasoning']
-            ]);
             
             return [
                 'approved' => $isSafe,
@@ -110,15 +76,6 @@ class ContentModerationService
             ];
             
         } catch (Exception $e) {
-            Log::error("Content moderation failed", [
-                'type' => $type,
-                'error' => $e->getMessage(),
-                'error_class' => get_class($e),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            
             // Fallback : approuver le contenu en cas d'erreur
             return $this->getFallbackResponse();
         }

@@ -35,7 +35,7 @@
             <!-- Email Address -->
             <div>
                 <x-input-label for="email" :value="__('Email')" class="text-primary font-medium mb-2" />
-                <x-text-input id="email" class="form-input w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" placeholder="votre.email@sait.ca" />
+                <x-text-input id="email" class="form-input w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" placeholder="your.email@sait.ca" />
                 <x-input-error :messages="$errors->get('email')" class="mt-2" />
             </div>
 
@@ -65,7 +65,7 @@
 
         <p class="text-center text-sm text-muted mt-6">
             Pas encore inscrit ?
-            <a href="{{ route('register') }}" class="font-medium text-brand hover:underline">Créer un compte</a>
+            <a href="{{ route('register') }}" class="font-medium text-brand hover:underline">Create Account</a>
         </p>
     </div>
 </x-guest-layout>

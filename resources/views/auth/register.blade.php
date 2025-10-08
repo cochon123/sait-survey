@@ -2,7 +2,7 @@
     <div class="p-6 sm:p-8">
         <div class="text-center mb-8">
             <img src="{{ asset('image/campus_voice.png') }}" alt="Campus Voice logo" class="mx-auto h-20 w-auto mb-4 opacity-90">
-            <h2 class="text-2xl font-extrabold text-primary">Créer un compte</h2>
+            <h2 class="text-2xl font-extrabold text-primary">Create Account</h2>
             <p class="mt-2 text-sm text-muted">Rejoignez la communauté SAIT Survey</p>
         </div>
 
@@ -22,7 +22,7 @@
                 <div class="w-full border-t border-primary/20"></div>
             </div>
             <div class="relative flex justify-center text-sm">
-                <span class="px-2 text-muted depth-layer-1">Ou créer un compte avec</span>
+                <span class="px-2 text-muted depth-layer-1">Or create an account with</span>
             </div>
         </div>
 
@@ -32,14 +32,14 @@
             <!-- Name -->
             <div>
                 <x-input-label for="name" :value="__('Name')" class="text-primary font-medium mb-2" />
-                <x-text-input id="name" class="form-input w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" placeholder="Votre nom" />
+                <x-text-input id="name" class="form-input w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" placeholder="Your name" />
                 <x-input-error :messages="$errors->get('name')" class="mt-2" />
             </div>
 
             <!-- Email Address -->
             <div>
                 <x-input-label for="email" :value="__('Email')" class="text-primary font-medium mb-2" />
-                <x-text-input id="email" class="form-input w-full" type="email" name="email" :value="old('email')" required autocomplete="username" placeholder="votre.email@sait.ca" />
+                <x-text-input id="email" class="form-input w-full" type="email" name="email" :value="old('email')" required autocomplete="username" placeholder="your.email@sait.ca" />
                 <x-input-error :messages="$errors->get('email')" class="mt-2" />
             </div>
 
