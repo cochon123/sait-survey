@@ -20,11 +20,36 @@
     <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- App Header with Logo -->
         <div class="frosted-card p-6 mb-8">
-            <div class="flex items-center justify-center">
-                <img src="{{ asset('image/campus_voice.png') }}" alt="Campus Voice Logo" class="h-12 w-auto mr-4">
-                <div>
-                    <h1 class="text-2xl font-bold text-primary">My Profile</h1>
-                    <p class="text-muted text-sm">Manage your account settings</p>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <img src="{{ asset('image/campus_voice.png') }}" alt="Campus Voice Logo" class="h-12 w-auto mr-4">
+                    <div>
+                        <h1 class="text-2xl font-bold text-primary">My Profile</h1>
+                        <p class="text-muted text-sm">Manage your account settings</p>
+                    </div>
+                </div>
+                <div class="flex space-x-3">
+                    <!-- Logout Button -->
+                    <form method="POST" action="{{ route('logout') }}" class="inline">
+                        @csrf
+                        <button type="submit"
+                                class="py-2 px-4 rounded-lg font-medium text-center transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center space-x-2"
+                                style="background: var(--bg-light); color: var(--text); box-shadow: var(--shadow-s);">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                            </svg>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                    <!-- Back to Propositions -->
+                    <a href="{{ route('propositions.index') }}"
+                       class="py-2 px-4 rounded-lg font-medium text-center transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center space-x-2"
+                       style="background: var(--brand); color: hsl(0, 0%, 10%); box-shadow: var(--shadow-s);">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                        </svg>
+                        <span>Back to Feed</span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -145,7 +170,7 @@
             </div>
 
             <!-- Account Statistics -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="frosted-card p-6 text-center">
                     <div class="text-3xl font-bold mb-2" style="color: var(--brand);">{{ $user->propositions->count() }}</div>
                     <div class="text-sm" style="color: var(--text-muted);">Propositions</div>
@@ -154,11 +179,19 @@
                     <div class="text-3xl font-bold mb-2" style="color: var(--brand);">{{ $user->votes->count() }}</div>
                     <div class="text-sm" style="color: var(--text-muted);">Votes Cast</div>
                 </div>
-                <div class="frosted-card p-6 text-center">
-                    <div class="text-3xl font-bold mb-2" style="color: var(--brand);">{{ $user->created_at->diffInDays(now()) }}</div>
-                    <div class="text-sm" style="color: var(--text-muted);">Days Member</div>
-                </div>
             </div>
+
+            <!-- User's Propositions -->
+            @if($propositions->count() > 0)
+                <div class="frosted-card p-8 mt-8">
+                    <h3 class="text-lg font-semibold mb-6" style="color: var(--text);">My Propositions</h3>
+                    <div class="space-y-4">
+                        @foreach($propositions as $proposition)
+                            <x-proposition-card :proposition="$proposition" />
+                        @endforeach
+                    </div>
+                </div>
+            @endif
 
             <!-- Delete Account Section -->
             <div class="frosted-card p-8">
@@ -210,6 +243,231 @@
                 reader.readAsDataURL(file);
             }
         });
+
+        // ===== PROPOSITION VOTING AND COMMENTING FUNCTIONALITY =====
+        
+        // Voting functionality
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.upvote-btn')) {
+                e.preventDefault();
+                const btn = e.target.closest('.upvote-btn');
+                handleVote(btn, 'upvote');
+            } else if (e.target.closest('.downvote-btn')) {
+                e.preventDefault();
+                const btn = e.target.closest('.downvote-btn');
+                handleVote(btn, 'downvote');
+            } else if (e.target.closest('.comment-toggle-btn')) {
+                e.preventDefault();
+                const btn = e.target.closest('.comment-toggle-btn');
+                toggleComments(btn);
+            } else if (e.target.closest('.delete-btn')) {
+                e.preventDefault();
+                const btn = e.target.closest('.delete-btn');
+                deleteProposition(btn);
+            } else if (e.target.closest('.delete-comment-btn')) {
+                e.preventDefault();
+                const btn = e.target.closest('.delete-comment-btn');
+                deleteComment(btn);
+            }
+        });
+
+        // Handle voting
+        async function handleVote(button, voteType) {
+            const propositionId = button.getAttribute('data-id');
+            const hasVoted = button.getAttribute('data-user-voted') === 'true';
+            
+            try {
+                const response = await fetch(`/propositions/${propositionId}/vote`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        vote_type: hasVoted ? null : voteType
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    updateVoteDisplay(propositionId, data);
+                } else {
+                    console.error('Vote failed');
+                }
+            } catch (error) {
+                console.error('Vote error:', error);
+            }
+        }
+
+        // Update vote display
+        function updateVoteDisplay(propositionId, data) {
+            const card = document.querySelector(`[data-id="${propositionId}"]`);
+            if (!card) return;
+
+            const upvoteBtn = card.querySelector('.upvote-btn');
+            const downvoteBtn = card.querySelector('.downvote-btn');
+            const upvoteCount = card.querySelector('.upvote-count');
+            const downvoteCount = card.querySelector('.downvote-count');
+
+            // Update counts
+            upvoteCount.textContent = data.upvotes;
+            downvoteCount.textContent = data.downvotes;
+
+            // Update button states
+            const userVote = data.user_vote;
+            
+            if (userVote === 'upvote') {
+                upvoteBtn.classList.add('bg-green-200', 'shadow-md');
+                upvoteBtn.classList.remove('hover:bg-green-50');
+                upvoteBtn.setAttribute('data-user-voted', 'true');
+                downvoteBtn.classList.remove('bg-red-200', 'shadow-md');
+                downvoteBtn.classList.add('hover:bg-red-50');
+                downvoteBtn.setAttribute('data-user-voted', 'false');
+            } else if (userVote === 'downvote') {
+                downvoteBtn.classList.add('bg-red-200', 'shadow-md');
+                downvoteBtn.classList.remove('hover:bg-red-50');
+                downvoteBtn.setAttribute('data-user-voted', 'true');
+                upvoteBtn.classList.remove('bg-green-200', 'shadow-md');
+                upvoteBtn.classList.add('hover:bg-green-50');
+                upvoteBtn.setAttribute('data-user-voted', 'false');
+            } else {
+                upvoteBtn.classList.remove('bg-green-200', 'shadow-md');
+                upvoteBtn.classList.add('hover:bg-green-50');
+                upvoteBtn.setAttribute('data-user-voted', 'false');
+                downvoteBtn.classList.remove('bg-red-200', 'shadow-md');
+                downvoteBtn.classList.add('hover:bg-red-50');
+                downvoteBtn.setAttribute('data-user-voted', 'false');
+            }
+        }
+
+        // Toggle comments section
+        function toggleComments(button) {
+            const propositionId = button.getAttribute('data-id');
+            const card = document.querySelector(`[data-id="${propositionId}"]`);
+            const commentsSection = card.querySelector('.comments-section');
+            
+            commentsSection.classList.toggle('hidden');
+        }
+
+        // Delete proposition
+        async function deleteProposition(button) {
+            if (!confirm('Are you sure you want to delete this proposition?')) {
+                return;
+            }
+
+            const propositionId = button.getAttribute('data-id');
+            
+            try {
+                const response = await fetch(`/propositions/${propositionId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+
+                if (response.ok) {
+                    const card = document.querySelector(`[data-id="${propositionId}"]`);
+                    card.remove();
+                } else {
+                    alert('Failed to delete proposition');
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+                alert('Failed to delete proposition');
+            }
+        }
+
+        // Delete comment
+        async function deleteComment(button) {
+            if (!confirm('Are you sure you want to delete this comment?')) {
+                return;
+            }
+
+            const commentId = button.getAttribute('data-comment-id');
+            
+            try {
+                const response = await fetch(`/comments/${commentId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+
+                if (response.ok) {
+                    const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
+                    commentItem.remove();
+                } else {
+                    alert('Failed to delete comment');
+                }
+            } catch (error) {
+                console.error('Delete comment error:', error);
+                alert('Failed to delete comment');
+            }
+        }
+
+        // Handle comment form submission
+        document.addEventListener('submit', async function(e) {
+            if (e.target.classList.contains('comment-form')) {
+                e.preventDefault();
+                const form = e.target;
+                const propositionId = form.getAttribute('data-proposition-id');
+                const formData = new FormData(form);
+                
+                try {
+                    const response = await fetch(`/propositions/${propositionId}/comments`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        addCommentToList(propositionId, data.comment);
+                        form.reset();
+                    } else {
+                        alert('Failed to add comment');
+                    }
+                } catch (error) {
+                    console.error('Comment error:', error);
+                    alert('Failed to add comment');
+                }
+            }
+        });
+
+        // Add comment to list
+        function addCommentToList(propositionId, comment) {
+            const card = document.querySelector(`[data-id="${propositionId}"]`);
+            const commentsList = card.querySelector('.comments-list');
+            
+            const commentHtml = `
+                <div class="comment-item flex gap-3" data-comment-id="${comment.id}">
+                    <img src="${comment.user.profile_picture_url}" alt="${comment.user.display_name}" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="font-medium text-primary text-sm">${comment.user.display_name}</span>
+                            <span class="text-xs text-muted">just now</span>
+                            <button class="delete-comment-btn text-xs text-muted hover:text-red-500 ml-auto" data-comment-id="${comment.id}">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <p class="text-primary text-sm">${comment.content}</p>
+                    </div>
+                </div>
+            `;
+            
+            commentsList.insertAdjacentHTML('beforeend', commentHtml);
+            
+            // Update comment count
+            const commentCountSpan = card.querySelector('.comment-count');
+            const currentCount = parseInt(commentCountSpan.textContent.match(/\d+/)[0]);
+            commentCountSpan.textContent = `(${currentCount + 1})`;
+        }
+
+        // ===== END PROPOSITION FUNCTIONALITY =====
 
         // Automatically detect and apply system theme preference
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
