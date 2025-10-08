@@ -29,27 +29,6 @@
                     </div>
                 </div>
                 <div class="flex space-x-3">
-                    <!-- Logout Button -->
-                    <form method="POST" action="{{ route('logout') }}" class="inline">
-                        @csrf
-                        <button type="submit"
-                                class="py-2 px-4 rounded-lg font-medium text-center transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center space-x-2"
-                                style="background: var(--bg-light); color: var(--text); box-shadow: var(--shadow-s);">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                            </svg>
-                            <span>Logout</span>
-                        </button>
-                    </form>
-                    <!-- Back to Propositions -->
-                    <a href="{{ route('propositions.index') }}"
-                       class="py-2 px-4 rounded-lg font-medium text-center transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center space-x-2"
-                       style="background: var(--brand); color: hsl(0, 0%, 10%); box-shadow: var(--shadow-s);">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-                        </svg>
-                        <span>Back to Feed</span>
-                    </a>
                 </div>
             </div>
         </div>
@@ -182,16 +161,16 @@
             </div>
 
             <!-- User's Propositions -->
+            <br />
             @if($propositions->count() > 0)
-                <div class="frosted-card p-8 mt-8">
-                    <h3 class="text-lg font-semibold mb-6" style="color: var(--text);">My Propositions</h3>
-                    <div class="space-y-4">
-                        @foreach($propositions as $proposition)
-                            <x-proposition-card :proposition="$proposition" />
-                        @endforeach
-                    </div>
+                <h3 class="text-lg font-semibold mb-6" style="color: var(--text);">My Propositions</h3>
+                <div class="space-y-4">
+                    @foreach($propositions as $proposition)
+                        <x-proposition-card :proposition="$proposition" />
+                    @endforeach
                 </div>
             @endif
+            <br
 
             <!-- Delete Account Section -->
             <div class="frosted-card p-8">
@@ -208,6 +187,21 @@
                         Delete Account
                     </button>
                 </form>
+
+                <!-- Logout Button -->
+                <div class="mt-6 pt-6 border-t" style="border-color: var(--bg-light);">
+                    <form method="POST" action="{{ route('logout') }}" class="inline">
+                        @csrf
+                        <button type="submit"
+                                class="py-2 px-4 rounded-lg font-medium text-center transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center space-x-2"
+                                style="background: var(--bg-light); color: var(--text); box-shadow: var(--shadow-s);">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                            </svg>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
