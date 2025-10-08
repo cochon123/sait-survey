@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const content = form.querySelector('#content')?.value?.trim() || '';
             return { content, title: '' };
         },
-        onSuccess: (form, data) => {
+        onSuccess: (form) => {
             // Submit form normally
             const formData = new FormData(form);
             
@@ -192,11 +192,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('Submission error');
                 }
             })
-            .catch(error => {
+            .catch(() => {
                 alert('An error occurred during submission');
             });
         },
-        onError: (error) => {
+        onError: () => {
             alert('An error occurred during verification');
         }
     });

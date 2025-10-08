@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
-    if (Auth::check()) {
+    if (Auth::check() === true) {
         return redirect()->route('propositions.index');
     }
     return view('welcome');
@@ -45,7 +45,7 @@ Route::middleware(['auth'])->prefix('moderation')->group(function () {
 });
 
 // Page de test de modération (environnement de développement uniquement)
-if (app()->environment('local')) {
+if (app()->environment('local') === true) {
     Route::get('/moderation-test', function () {
         return view('moderation-test');
     })->name('moderation.test');

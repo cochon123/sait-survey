@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Gemini\Laravel\Facades\Gemini;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class ContentModerationService
 {
@@ -15,6 +16,27 @@ class ContentModerationService
      */
     public function moderateNickname(string $nickname): array
     {
+        // Server-side pre-check for obfuscated banned words
+        $banned = $this->detectObfuscatedBannedWords($nickname);
+        if ($banned !== null) {
+            Log::warning("Obfuscated banned word detected in nickname: {$banned}");
+            return [
+                'approved' => false,
+                'reason' => 'Contains disallowed language (obfuscated)',
+                'decision' => 'unsafe'
+            ];
+        }
+
+        // Check for advanced bypass attempts
+        if ($this->detectAdvancedBypass($nickname)) {
+            Log::warning("Advanced bypass attempt detected in nickname: {$nickname}");
+            return [
+                'approved' => false,
+                'reason' => 'Suspicious content pattern detected',
+                'decision' => 'unsafe'
+            ];
+        }
+
         $prompt = $this->getNicknamePrompt($nickname);
         return $this->moderate($prompt, 'nickname');
     }
@@ -27,6 +49,30 @@ class ContentModerationService
         // Si le titre est null ou vide, on utilise une chaîne vide
         $title = $title ?? '';
         
+        // Pre-check both title and content for obfuscated banned words
+        $bannedTitle = $this->detectObfuscatedBannedWords($title);
+        $bannedContent = $this->detectObfuscatedBannedWords($content);
+
+        if ($bannedTitle !== null || $bannedContent !== null) {
+            $detected = $bannedTitle ?? $bannedContent;
+            Log::warning("Obfuscated banned word detected in proposition: {$detected}");
+            return [
+                'approved' => false,
+                'reason' => 'Contains disallowed language (obfuscated)',
+                'decision' => 'unsafe'
+            ];
+        }
+
+        // Check for advanced bypass attempts
+        if ($this->detectAdvancedBypass($title) || $this->detectAdvancedBypass($content)) {
+            Log::warning("Advanced bypass attempt detected in proposition: title='{$title}', content='{$content}'");
+            return [
+                'approved' => false,
+                'reason' => 'Suspicious content pattern detected',
+                'decision' => 'unsafe'
+            ];
+        }
+
         $prompt = $this->getPropositionPrompt($title, $content);
         return $this->moderate($prompt, 'proposition');
     }
@@ -36,6 +82,27 @@ class ContentModerationService
      */
     public function moderateComment(string $content): array
     {
+        // Pre-check comment content for obfuscated banned words
+        $banned = $this->detectObfuscatedBannedWords($content);
+        if ($banned !== null) {
+            Log::warning("Obfuscated banned word detected in comment: {$banned}");
+            return [
+                'approved' => false,
+                'reason' => 'Contains disallowed language (obfuscated)',
+                'decision' => 'unsafe'
+            ];
+        }
+
+        // Check for advanced bypass attempts
+        if ($this->detectAdvancedBypass($content)) {
+            Log::warning("Advanced bypass attempt detected in comment: {$content}");
+            return [
+                'approved' => false,
+                'reason' => 'Suspicious content pattern detected',
+                'decision' => 'unsafe'
+            ];
+        }
+
         $prompt = $this->getCommentPrompt($content);
         return $this->moderate($prompt, 'comment');
     }
@@ -54,6 +121,9 @@ class ContentModerationService
             
             $response = $result->text();
             
+            // Log the AI response for debugging
+            Log::info("AI Moderation Response for {$type}: " . $response);
+            
             // Parse de la réponse JSON
             $cleanResponse = $this->cleanJsonResponse($response);
             $decodedResponse = json_decode($cleanResponse, true);
@@ -63,11 +133,16 @@ class ContentModerationService
             }
             
             // Validation de la structure de réponse
-            if (!isset($decodedResponse['decision']) || !isset($decodedResponse['reasoning'])) {
+            if (isset($decodedResponse['decision']) === false || isset($decodedResponse['reasoning']) === false) {
                 return $this->getFallbackResponse();
             }
             
             $isSafe = strtolower($decodedResponse['decision']) === 'safe';
+            
+            // Log bypass attempts for monitoring
+            if (!$isSafe && strpos(strtolower($decodedResponse['reasoning']), 'bypass') !== false) {
+                Log::warning("Bypass attempt detected for {$type}: " . $response);
+            }
             
             return [
                 'approved' => $isSafe,
@@ -114,8 +189,188 @@ BLOCK (respond with 'unsafe'):
 - Content promoting illegal activities
 - Spam or completely off-topic content
 - Content that could endanger student safety
+- Content that uses special characters, spacing, or leetspeak to disguise offensive words (e.g., f*u*c*k, n.i.g.g.e.r, s*h*i*t)
+- Any attempt to bypass content filters through character substitution or obfuscation
+
+IMPORTANT: Detect and block content that tries to circumvent filters by:
+- Replacing letters with similar-looking characters (*, @, numbers)
+- Using excessive spacing between letters
+- Using dots or other punctuation between letters
+- Leetspeak substitutions (e.g., 4 for 'a', 3 for 'e', 1 for 'i')
+- Any other method to disguise profanity or hate speech
 
 When in doubt, choose 'safe' unless the content clearly violates safety guidelines.";
+    }
+
+    /**
+     * Normalize a string to improve matching of obfuscated words.
+     * - Lowercase
+     * - Replace common leet substitutions and symbols
+     * - Remove punctuation and repeated non-word characters
+     * - Collapse whitespace and repeated characters
+     */
+    private function normalizeForMatching(string $text): string
+    {
+        // Lowercase
+        $s = mb_strtolower($text, 'UTF-8');
+
+        // Get normalization rules from config
+        $replacements = config('moderation.normalization_rules', []);
+
+        foreach ($replacements as $search => $replace) {
+            $s = str_replace($search, $replace, $s);
+        }
+
+        // Remove all punctuation, spaces, dots, stars, underscores, etc.
+        $s = preg_replace('/[^\p{L}\p{N}]/u', '', $s);
+
+        // Collapse repeated characters (e.g., loooool -> lol, shiiit -> shit)
+        $s = preg_replace('/(.)\1{1,}/u', '\\1', $s);
+
+        return $s;
+    }
+
+    /**
+     * Detect obfuscated banned words in a given text. Returns the matched banned word or null.
+     */
+    private function detectObfuscatedBannedWords(string $text): ?string
+    {
+        $normalized = $this->normalizeForMatching($text);
+
+        if ($normalized === '') return null;
+
+        // Get banned words from config
+        $banned = config('moderation.banned_words', []);
+
+        foreach ($banned as $bad) {
+            $normalizedBad = $this->normalizeForMatching($bad);
+            if ($normalizedBad === '') continue;
+
+            // Check for exact match and substring match
+            if ($normalized === $normalizedBad || strpos($normalized, $normalizedBad) !== false) {
+                Log::info("Banned word detection: '{$text}' normalized to '{$normalized}' contains '{$normalizedBad}'");
+                return $bad;
+            }
+        }
+
+        // Additional check for patterns that bypass normalization
+        $patterns = config('moderation.bypass_patterns', []);
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $text)) {
+                Log::info("Pattern detection: '{$text}' matches pattern '{$pattern}'");
+                return 'obfuscated_profanity';
+            }
+        }
+
+        // Enhanced sentence-level detection
+        $sentenceCheck = $this->detectObfuscatedInSentence($text);
+        if ($sentenceCheck !== null) {
+            return $sentenceCheck;
+        }
+
+        return null;
+    }
+
+    /**
+     * Analyze sentences for obfuscated words by checking individual words and word boundaries
+     */
+    private function detectObfuscatedInSentence(string $text): ?string
+    {
+        // Split text into words while preserving separators for analysis
+        $words = preg_split('/\s+/', $text, -1, PREG_SPLIT_NO_EMPTY);
+        
+        foreach ($words as $word) {
+            // Clean the word but preserve enough structure for word boundary detection
+            $cleanWord = preg_replace('/[^\p{L}\p{N}\*\.\-_@#$!]+/u', '', $word);
+            
+            if (strlen($cleanWord) < 3) continue; // Skip very short words
+            
+            // Check if this word contains obfuscated profanity
+            $normalized = $this->normalizeForMatching($cleanWord);
+            $banned = config('moderation.banned_words', []);
+            
+            foreach ($banned as $bad) {
+                $normalizedBad = $this->normalizeForMatching($bad);
+                if ($normalizedBad === '') continue;
+                
+                // For sentence analysis, check both exact matches and substrings
+                if ($normalized === $normalizedBad || strpos($normalized, $normalizedBad) !== false) {
+                    Log::info("Sentence-level detection: word '{$cleanWord}' in '{$text}' contains '{$bad}'");
+                    return $bad;
+                }
+            }
+        }
+
+        // Check for distributed obfuscation across multiple words
+        $condensed = $this->normalizeForMatching(str_replace(' ', '', $text));
+        $banned = config('moderation.banned_words', []);
+        
+        foreach ($banned as $bad) {
+            $normalizedBad = $this->normalizeForMatching($bad);
+            if ($normalizedBad === '') continue;
+            
+            if (strpos($condensed, $normalizedBad) !== false) {
+                Log::info("Distributed obfuscation detected: '{$text}' contains '{$bad}' when spaces removed");
+                return $bad;
+            }
+        }
+
+        // Additional check for compound racial slurs that might be missed
+        $compoundPatterns = [
+            '/dirty\s*hispanic/i' => 'dirty hispanic',
+            '/dirty\s*spic/i' => 'dirty spic',
+            '/stupid\s*mexican/i' => 'stupid mexican',
+            '/dumb\s*nigger/i' => 'racial slur compound',
+            '/lazy\s*mexican/i' => 'lazy mexican',
+            '/wetback\s*count/i' => 'racial slur compound',
+            '/hispanic\s*count/i' => 'racial counting slur',
+        ];
+
+        foreach ($compoundPatterns as $pattern => $description) {
+            if (preg_match($pattern, $text)) {
+                Log::warning("Compound racial slur detected: '{$text}' matches pattern for '{$description}'");
+                return $description;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Additional checks for sophisticated bypass attempts
+     */
+    private function detectAdvancedBypass(string $text): bool
+    {
+        $thresholds = config('moderation.detection_thresholds', [
+            'symbol_density_max' => 0.4,
+            'min_encoded_length' => 20,
+        ]);
+
+        // Check for excessive punctuation or symbols that might hide words
+        $symbolDensity = preg_match_all('/[^\p{L}\p{N}\s]/u', $text);
+        $textLength = mb_strlen($text, 'UTF-8');
+        
+        if ($textLength > 0 && ($symbolDensity / $textLength) > $thresholds['symbol_density_max']) {
+            Log::info("High symbol density detected: {$text}");
+            return true;
+        }
+
+        // Check for excessive spacing between characters
+        if (preg_match('/\b\w(\s+\w){3,}\b/', $text)) {
+            Log::info("Excessive character spacing detected: {$text}");
+            return true;
+        }
+
+        // Check for Base64 or hex encoded content that might contain profanity
+        $minLength = $thresholds['min_encoded_length'];
+        if (preg_match("/^[A-Za-z0-9+\/=]{{$minLength},}$/", trim($text)) || 
+            preg_match("/^[0-9A-Fa-f]{{$minLength},}$/", trim($text))) {
+            Log::info("Potential encoded content detected: {$text}");
+            return true;
+        }
+
+        return false;
     }
     
     /**

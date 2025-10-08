@@ -14,7 +14,7 @@
         </div>
         
         <div class="mb-6">
-            <p class="text-sm text-text-muted mb-2">Raison du rejet :</p>
+            <p class="text-sm text-text-muted mb-2">Reason of reject :</p>
             <p id="moderation-reason" class="text-sm text-text bg-bg-light p-3 rounded-lg"></p>
         </div>
         
@@ -23,7 +23,7 @@
                 Edit
             </button>
             <button id="moderation-close-btn" class="flex-1 bg-bg-light text-text px-4 py-2 rounded-lg hover:bg-opacity-80 transition-colors">
-                Fermer
+                Close
             </button>
         </div>
     </div>

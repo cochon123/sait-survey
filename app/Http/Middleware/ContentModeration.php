@@ -21,7 +21,7 @@ class ContentModeration
         // Vérifie si la requête contient du contenu à modérer
         $moderationResult = $this->moderateContent($request, $type);
         
-        if (!$moderationResult['approved']) {
+        if ($moderationResult['approved'] === false) {
             return response()->json([
                 'moderation_failed' => true,
                 'reason' => $moderationResult['reason'],
