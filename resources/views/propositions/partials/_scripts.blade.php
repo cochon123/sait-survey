@@ -618,43 +618,6 @@
         }
     });
 
-    // Show one-per-day modal when server indicates an error
-    document.addEventListener('DOMContentLoaded', function() {
-        const oneDayModal = document.getElementById('one-day-modal');
-        const oneDayClose = document.getElementById('one-day-close');
-
-        function openOneDayModal() {
-            if (oneDayModal) {
-                oneDayModal.classList.remove('hidden');
-                document.body.classList.add('modal-open');
-            }
-        }
-
-        function closeOneDayModal() {
-            if (oneDayModal) {
-                oneDayModal.classList.add('hidden');
-                document.body.classList.remove('modal-open');
-            }
-        }
-
-        if (oneDayClose) {
-            oneDayClose.addEventListener('click', closeOneDayModal);
-        }
-
-        // Close when clicking the backdrop
-        if (oneDayModal) {
-            oneDayModal.addEventListener('click', function(e) {
-                if (e.target === oneDayModal) closeOneDayModal();
-            });
-        }
-
-        // Server-provided flags: show modal if session has error or validation errors for content
-        const serverHasError = {!! json_encode(session()->has('error') || $errors->has('content')) !!};
-        if (serverHasError) {
-            openOneDayModal();
-        }
-    });
-
     // Theme Detection Script
     // Automatically detect and apply system theme preference
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {

@@ -77,13 +77,4 @@
   </div>
 </div>
 
-{{-- One-per-day warning modal --}}
-<div id="one-day-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-60 hidden">
-    <div class="frosted-card max-w-lg w-full mx-4 p-8">
-        <h3 class="text-lg font-bold text-primary mb-3">Unauthorized Action</h3>
-        <p class="text-muted mb-6">You can not post more than one proposal per day. Please come back tomorrow to share a new idea.</p>
-        <div class="text-right">
-            <button id="one-day-close" class="btn-secondary">Close</button>
-        </div>
-    </div>
-</div>
+

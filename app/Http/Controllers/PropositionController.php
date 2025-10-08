@@ -29,20 +29,14 @@ class PropositionController extends Controller
             $pendingProposition = session('pending_proposition');
             session()->forget('pending_proposition'); // Clear it so it doesn't repeat
 
-            // Check if user can create a proposition today
-            if (Proposition::canUserCreatePropositionToday()) {
-                // Create the proposition automatically
-                $proposition = Proposition::create([
-                    'user_id' => Auth::id(),
-                    'content' => $pendingProposition,
-                ]);
+            // Create the proposition automatically
+            $proposition = Proposition::create([
+                'user_id' => Auth::id(),
+                'content' => $pendingProposition,
+            ]);
 
-                // Flash the new proposition ID for highlighting
-                session()->flash('new_proposition_id', $proposition->id);
-            } else {
-                // User already created a proposition today
-                session()->flash('error', 'You can only create one proposition per day.');
-            }
+            // Flash the new proposition ID for highlighting
+            session()->flash('new_proposition_id', $proposition->id);
 
             // Re-fetch propositions to include the new one
             $propositions = $query->paginate($perPage);
@@ -89,11 +83,6 @@ class PropositionController extends Controller
         $request->validate([
             'content' => 'required|string|max:1000',
         ]);
-
-        // Check if user can create a proposition today
-        if (!Proposition::canUserCreatePropositionToday()) {
-            return redirect()->back()->withErrors(['content' => 'You can only create one proposition per day.']);
-        }
 
         $proposition = Proposition::create([
             'user_id' => Auth::id(),

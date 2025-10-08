@@ -18,7 +18,7 @@
 
     <style>
       /* Appliquer un flou sur tout le contenu sauf les modals lorsque le body a la classe 'modal-open' */
-      body.modal-open > :not(#auth-modal):not(#one-day-modal) {
+      body.modal-open > :not(#auth-modal) {
         filter: blur(5px);
       }
     </style>
