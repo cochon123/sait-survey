@@ -30,18 +30,18 @@
         <meta name="apple-touch-fullscreen" content="yes">
 
         <!-- Apple Touch Icons (Safari) -->
-        <link rel="apple-touch-icon" sizes="57x57" href="/image/campus_voice.png">
-        <link rel="apple-touch-icon" sizes="60x60" href="/image/campus_voice.png">
-        <link rel="apple-touch-icon" sizes="72x72" href="/image/campus_voice.png">
-        <link rel="apple-touch-icon" sizes="76x76" href="/image/campus_voice.png">
-        <link rel="apple-touch-icon" sizes="114x114" href="/image/campus_voice.png">
-        <link rel="apple-touch-icon" sizes="120x120" href="/image/campus_voice.png">
-        <link rel="apple-touch-icon" sizes="144x144" href="/image/campus_voice.png">
-        <link rel="apple-touch-icon" sizes="152x152" href="/image/campus_voice.png">
-        <link rel="apple-touch-icon" sizes="180x180" href="/image/campus_voice.png">
+        <link rel="apple-touch-icon" sizes="57x57" href="/images/icons/icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="/images/icons/icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="/images/icons/icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="/images/icons/icon-96x96.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="/images/icons/icon-128x128.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="/images/icons/icon-128x128.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="/images/icons/icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="/images/icons/icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/images/icons/icon-180x180.png">
 
         <!-- Apple Startup Images -->
-        <link rel="apple-touch-startup-image" href="/image/campus_voice.png">
+        <link rel="apple-touch-startup-image" href="/images/icons/icon-512x512.png">
 
         <!-- Firefox/Mozilla Specific -->
         <meta name="msapplication-TileColor" content="#6366f1">
@@ -53,8 +53,8 @@
         <meta name="mobile-web-app-capable" content="yes">
 
         <!-- Favicon -->
-        <link rel="icon" type="image/png" sizes="32x32" href="/image/campus_voice.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/image/campus_voice.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/images/icons/icon-72x72.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/images/icons/icon-72x72.png">
         <link rel="shortcut icon" href="/favicon.ico"
 
 
