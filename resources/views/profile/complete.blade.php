@@ -49,21 +49,22 @@
         document.addEventListener('DOMContentLoaded', function() {
             const nicknameForm = document.getElementById('nickname-form');
             
-            if (nicknameForm) {
-                moderateFormSubmission(
-                    nicknameForm,
-                    'nickname',
-                    (form) => {
-                        const input = form.querySelector('#nickname');
-                        return {
-                            nickname: input.value.trim()
-                        };
+            if (nicknameForm && window.moderation) {
+                window.moderation.setupFormModeration('#nickname-form', {
+                    type: 'nickname',
+                    inputSelector: '#nickname',
+                    getData: (form) => {
+                        const nickname = form.querySelector('#nickname')?.value?.trim() || '';
+                        return { nickname };
                     },
-                    (form, data) => {
-                        // Contenu approuvé : soumettre le formulaire normalement
+                    onSuccess: (form, data) => {
+                        // Content approved: submit form normally
                         form.submit();
+                    },
+                    onError: (error) => {
+                        alert('An error occurred during verification');
                     }
-                );
+                });
             }
         });
     </script>

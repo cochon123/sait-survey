@@ -12,47 +12,6 @@
                 });
             }
         });
-
-        // Moderation for proposition form
-        document.addEventListener('DOMContentLoaded', function() {
-            const propositionForm = document.getElementById('proposition-form');
-            
-            if (propositionForm && typeof moderateFormSubmission === 'function') {
-                moderateFormSubmission(
-                    propositionForm,
-                    'proposition',
-                    (form) => {
-                        const input = form.querySelector('#content');
-                        return {
-                            content: input.value.trim(),
-                            title: ''
-                        };
-                    },
-                    (form, data) => {
-                        // Content approved: submit form normally
-                        const formData = new FormData(form);
-                        
-                        fetch(form.action, {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                            }
-                        })
-                        .then(response => {
-                            if (response.ok) {
-                                window.location.reload();
-                            } else {
-                                throw new Error('Submission error');
-                            }
-                        })
-                        .catch(error => {
-                            alert('An error occurred during submission');
-                        });
-                    }
-                );
-            }
-        });
     @endauth
 
     // Guest input functionality
@@ -382,12 +341,12 @@
                     submitBtn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="4" class="opacity-25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" class="opacity-75"></path></svg>';
 
                     try {
-                        // Modération du commentaire
-                        const moderationResult = await window.moderationService.checkComment(content);
+                        // Comment moderation
+                        const moderationResult = await window.moderation.checkComment(content);
                         
                         if (!moderationResult.approved) {
                             // Content rejected
-                            window.moderationService.showPopup(moderationResult.reason, () => {
+                            window.moderation.showPopup(moderationResult.reason, () => {
                                 contentInput.focus();
                             });
                             return;

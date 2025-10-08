@@ -97,7 +97,7 @@
                 result.innerHTML = '<span class="text-yellow-600">🔄 Vérification...</span>';
                 
                 try {
-                    const moderationResult = await window.moderationService.checkNickname(input.value.trim());
+                    const moderationResult = await window.moderation.checkNickname(input.value.trim());
                     
                     if (moderationResult.approved) {
                         result.innerHTML = '<span class="text-green-600">✅ Pseudonyme accepté</span>';
@@ -120,7 +120,7 @@
                 result.innerHTML = '<span class="text-yellow-600">🔄 Vérification...</span>';
                 
                 try {
-                    const moderationResult = await window.moderationService.checkProposition(input.value.trim());
+                    const moderationResult = await window.moderation.checkProposition(input.value.trim());
                     
                     if (moderationResult.approved) {
                         result.innerHTML = '<span class="text-green-600">✅ Proposition acceptée</span>';
@@ -143,7 +143,7 @@
                 result.innerHTML = '<span class="text-yellow-600">🔄 Vérification...</span>';
                 
                 try {
-                    const moderationResult = await window.moderationService.checkComment(input.value.trim());
+                    const moderationResult = await window.moderation.checkComment(input.value.trim());
                     
                     if (moderationResult.approved) {
                         result.innerHTML = '<span class="text-green-600">✅ Commentaire accepté</span>';
