@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropositionController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\ModerationController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -35,6 +36,20 @@ Route::delete('/propositions/{proposition}', [PropositionController::class, 'des
 // Routes pour les commentaires
 Route::post('/propositions/{proposition}/comments', [CommentController::class, 'store'])->middleware(['auth', 'profile.completed'])->name('comments.store');
 Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->middleware(['auth', 'profile.completed'])->name('comments.destroy');
+
+// Routes pour la modération de contenu
+Route::middleware(['auth'])->prefix('moderation')->group(function () {
+    Route::post('/nickname', [ModerationController::class, 'checkNickname'])->name('moderation.nickname');
+    Route::post('/proposition', [ModerationController::class, 'checkProposition'])->name('moderation.proposition');
+    Route::post('/comment', [ModerationController::class, 'checkComment'])->name('moderation.comment');
+});
+
+// Page de test de modération (environnement de développement uniquement)
+if (app()->environment('local')) {
+    Route::get('/moderation-test', function () {
+        return view('moderation-test');
+    })->name('moderation.test');
+}
 
 Route::middleware(['auth', 'profile.completed'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

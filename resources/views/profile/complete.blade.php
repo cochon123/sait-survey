@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Complete Your Profile</title>
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -27,7 +28,7 @@
             Welcome! To participate in the community, please choose a nickname. This will be your public identity on Campus Voice.
         </p>
 
-        <form action="{{ route('profile.complete.store') }}" method="POST">
+        <form id="nickname-form" action="{{ route('profile.complete.store') }}" method="POST">
             @csrf
             <div class="mb-4">
                 <label for="nickname" class="block text-sm font-medium text-primary mb-2">Nickname</label>
@@ -40,5 +41,31 @@
             <button type="submit" class="btn-primary w-full">Save and Continue</button>
         </form>
     </div>
+
+    @include('components.moderation-popup')
+
+    <script src="{{ asset('js/moderation.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const nicknameForm = document.getElementById('nickname-form');
+            
+            if (nicknameForm) {
+                moderateFormSubmission(
+                    nicknameForm,
+                    'nickname',
+                    (form) => {
+                        const input = form.querySelector('#nickname');
+                        return {
+                            nickname: input.value.trim()
+                        };
+                    },
+                    (form, data) => {
+                        // Contenu approuvé : soumettre le formulaire normalement
+                        form.submit();
+                    }
+                );
+            }
+        });
+    </script>
 </body>
 </html>

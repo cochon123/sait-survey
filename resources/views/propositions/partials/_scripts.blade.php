@@ -1,11 +1,98 @@
+<script src="{{ asset('js/moderation.js') }}"></script>
 <script>
     // Character counter for authenticated user form
     @auth
-        const textarea = document.getElementById('content');
-        const charCount = document.getElementById('char-count');
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('[Scripts] DOM loaded, setting up character counter');
+            const textarea = document.getElementById('content');
+            const charCount = document.getElementById('char-count');
+            
+            console.log('[Scripts] Elements found - textarea:', !!textarea, 'charCount:', !!charCount);
+            console.log('[Scripts] Elements IDs - textarea:', textarea?.id, 'charCount:', charCount?.id);
 
-        textarea.addEventListener('input', function() {
-            charCount.textContent = this.value.length;
+            if (textarea && charCount) {
+                console.log('[Scripts] Setting up character counter event listener');
+                textarea.addEventListener('input', function() {
+                    charCount.textContent = this.value.length;
+                    console.log('[Scripts] Character count updated:', this.value.length);
+                });
+            } else {
+                console.warn('[Scripts] Character counter elements not found - textarea:', !!textarea, 'charCount:', !!charCount);
+                
+                // Essayons de trouver tous les éléments similaires
+                const allTextareas = document.querySelectorAll('textarea');
+                const allCharCounts = document.querySelectorAll('[id*="char"]');
+                console.log('[Scripts] All textareas found:', allTextareas.length);
+                console.log('[Scripts] All char-related elements found:', allCharCounts.length);
+                
+                allTextareas.forEach((el, index) => {
+                    console.log(`[Scripts] Textarea ${index}:`, el.id, el.className);
+                });
+                
+                allCharCounts.forEach((el, index) => {
+                    console.log(`[Scripts] Char element ${index}:`, el.id, el.className);
+                });
+            }
+        });
+
+        // Modération du formulaire de proposition
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('[Scripts] DOMContentLoaded fired, looking for proposition form');
+            const propositionForm = document.getElementById('proposition-form');
+            console.log('[Scripts] Proposition form found:', !!propositionForm);
+            
+            if (propositionForm) {
+                console.log('[Scripts] Calling moderateFormSubmission for proposition form');
+                
+                if (typeof moderateFormSubmission === 'function') {
+                    console.log('[Scripts] moderateFormSubmission function is available');
+                    moderateFormSubmission(
+                        propositionForm,
+                        'proposition',
+                        (form) => {
+                            const input = form.querySelector('#content');
+                            const data = {
+                                content: input.value.trim(),
+                                title: '' // Pas de titre pour les propositions
+                            };
+                            console.log('[Scripts] Data extracted from form:', data);
+                            return data;
+                        },
+                        (form, data) => {
+                            console.log('[Scripts] Content approved, submitting form with data:', data);
+                            // Contenu approuvé : soumettre le formulaire normalement
+                            const formData = new FormData(form);
+                            
+                            fetch(form.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            }
+                        })
+                        .then(response => {
+                            console.log('[Scripts] Form submission response:', response.status, response.ok);
+                            if (response.ok) {
+                                // Recharger la page pour voir la nouvelle proposition
+                                console.log('[Scripts] Form submitted successfully, reloading page');
+                                window.location.reload();
+                            } else {
+                                throw new Error('Erreur lors de la soumission');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('[Scripts] Form submission error:', error);
+                            alert('Une erreur est survenue lors de la soumission');
+                        });
+                    }
+                );
+                } else {
+                    console.error('[Scripts] moderateFormSubmission function is not available');
+                    console.log('[Scripts] Available functions on window:', Object.keys(window));
+                }
+            } else {
+                console.log('[Scripts] No proposition form found');
+            }
         });
     @endauth
 
@@ -317,7 +404,7 @@
                 }
             });
 
-            // Handle comment form submissions
+            // Handle comment form submissions avec modération
             document.body.addEventListener('submit', async function(e) {
                 if (e.target.classList.contains('comment-form')) {
                     e.preventDefault();
@@ -328,7 +415,26 @@
 
                     if (!content) return;
 
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    const originalHtml = submitBtn.innerHTML;
+                    
+                    // Indicateur de chargement
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="4" class="opacity-25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" class="opacity-75"></path></svg>';
+
                     try {
+                        // Modération du commentaire
+                        const moderationResult = await window.moderationService.checkComment(content);
+                        
+                        if (!moderationResult.approved) {
+                            // Contenu rejeté
+                            window.moderationService.showPopup(moderationResult.reason, () => {
+                                contentInput.focus();
+                            });
+                            return;
+                        }
+
+                        // Contenu approuvé : soumettre
                         const response = await fetch(`/propositions/${propositionId}/comments`, {
                             method: 'POST',
                             headers: {
@@ -372,9 +478,16 @@
                             }
 
                             contentInput.value = '';
+                        } else {
+                            throw new Error('Erreur lors de l\'ajout du commentaire');
                         }
                     } catch (error) {
-                        // Error handled silently
+                        console.error('Erreur:', error);
+                        // En cas d'erreur, ne pas afficher d'alerte pour éviter de perturber l'UX
+                    } finally {
+                        // Restaurer le bouton
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalHtml;
                     }
                 }
             });

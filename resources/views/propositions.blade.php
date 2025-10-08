@@ -12,6 +12,7 @@
 
         @include('propositions.partials._footer')
         @include('propositions.partials._modals')
+        @include('components.moderation-popup')
         @include('components.bottom-navigation')
         @include('propositions.partials._scripts')
     </body>
