@@ -38,7 +38,7 @@ class ProfileSetupController extends Controller
                 'string',
                 'max:50',
                 'min:3',
-                'regex:/^[a-zA-Z0-9_-]+$/',
+                'regex:/^[\w\s\-\p{Emoji}]+$/u',
                 Rule::unique('users')->ignore($user->id),
             ],
             'profile_picture' => [
@@ -48,7 +48,7 @@ class ProfileSetupController extends Controller
                 'max:2048', // 2MB max
             ],
         ], [
-            'nickname.regex' => 'Nickname can only contain letters, numbers, hyphens and underscores.',
+            'nickname.regex' => 'Nickname can only contain letters, numbers, spaces, hyphens, underscores, and emojis.',
             'nickname.unique' => 'This nickname is already taken.',
             'nickname.min' => 'Nickname must be at least 3 characters.',
             'profile_picture.max' => 'Profile picture must be less than 2MB.',

@@ -12,7 +12,7 @@ class CommentController extends Controller
     public function store(Request $request, Proposition $proposition)
     {
         $request->validate([
-            'content' => 'required|string|max:500',
+            'content' => 'required|string|max:500|regex:/^[\w\s\-\p{Emoji}]*$/u',
         ]);
 
         $comment = $proposition->comments()->create([

@@ -21,7 +21,7 @@ class ProfileCompletionController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nickname' => 'required|string|max:25|unique:users,nickname,' . Auth::id(),
+            'nickname' => 'required|string|max:25|regex:/^[\w\s\-\p{Emoji}]+$/u|unique:users,nickname,' . Auth::id(),
         ]);
 
         $user = Auth::user();

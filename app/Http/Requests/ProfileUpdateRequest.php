@@ -10,6 +10,8 @@ class ProfileUpdateRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
+     * 
+     * Includes support for Unicode emoji characters in nicknames.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
@@ -21,7 +23,7 @@ class ProfileUpdateRequest extends FormRequest
                 'string',
                 'max:50',
                 'min:3',
-                'regex:/^[a-zA-Z0-9_-]+$/',
+                'regex:/^[\w\s\-\p{Emoji}]+$/u',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
             'profile_picture' => [
@@ -45,7 +47,7 @@ class ProfileUpdateRequest extends FormRequest
             'nickname.unique' => 'This nickname is already taken.',
             'nickname.min' => 'Nickname must be at least 3 characters.',
             'nickname.max' => 'Nickname must not exceed 50 characters.',
-            'nickname.regex' => 'Nickname can only contain letters, numbers, hyphens and underscores.',
+            'nickname.regex' => 'Nickname can only contain letters, numbers, spaces, hyphens, underscores, and emojis.',
             'profile_picture.image' => 'Profile picture must be an image.',
             'profile_picture.mimes' => 'Profile picture must be a JPG, PNG, or GIF file.',
             'profile_picture.max' => 'Profile picture must be less than 2MB.',

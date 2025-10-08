@@ -6,6 +6,14 @@ use Gemini\Laravel\Facades\Gemini;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Service de modération de contenu avec support des emojis
+ * 
+ * Ce service effectue la modération de contenu tout en préservant
+ * l'utilisation légitime des emojis Unicode. Il utilise des techniques
+ * de normalisation intelligente pour détecter les mots interdits
+ * sans faux positifs sur les emojis.
+ */
 class ContentModerationService
 {
     private const DEFAULT_TIMEOUT = 10; // 10 secondes
@@ -13,6 +21,7 @@ class ContentModerationService
     
     /**
      * Modère un pseudonyme utilisateur
+     * Supporte les emojis Unicode tout en bloquant le contenu inapproprié
      */
     public function moderateNickname(string $nickname): array
     {
@@ -222,7 +231,8 @@ When in doubt, choose 'safe' unless the content clearly violates safety guidelin
         }
 
         // Remove all punctuation, spaces, dots, stars, underscores, etc.
-        $s = preg_replace('/[^\p{L}\p{N}]/u', '', $s);
+        // BUT preserve emojis by excluding them from removal
+        $s = preg_replace('/[^\p{L}\p{N}\x{1F600}-\x{1F64F}\x{1F300}-\x{1F5FF}\x{1F680}-\x{1F6FF}\x{1F1E0}-\x{1F1FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}]/u', '', $s);
 
         // Collapse repeated characters (e.g., loooool -> lol, shiiit -> shit)
         $s = preg_replace('/(.)\1{1,}/u', '\\1', $s);
@@ -231,11 +241,21 @@ When in doubt, choose 'safe' unless the content clearly violates safety guidelin
     }
 
     /**
+     * Remove emojis from text for banned word detection
+     */
+    private function removeEmojis(string $text): string
+    {
+        return preg_replace('/[\x{1F600}-\x{1F64F}\x{1F300}-\x{1F5FF}\x{1F680}-\x{1F6FF}\x{1F1E0}-\x{1F1FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}]/u', '', $text);
+    }
+
+    /**
      * Detect obfuscated banned words in a given text. Returns the matched banned word or null.
      */
     private function detectObfuscatedBannedWords(string $text): ?string
     {
-        $normalized = $this->normalizeForMatching($text);
+        // Remove emojis from text for banned word detection to avoid false positives
+        $textWithoutEmojis = $this->removeEmojis($text);
+        $normalized = $this->normalizeForMatching($textWithoutEmojis);
 
         if ($normalized === '') return null;
 
@@ -277,8 +297,11 @@ When in doubt, choose 'safe' unless the content clearly violates safety guidelin
      */
     private function detectObfuscatedInSentence(string $text): ?string
     {
+        // Remove emojis for banned word detection
+        $textWithoutEmojis = $this->removeEmojis($text);
+        
         // Split text into words while preserving separators for analysis
-        $words = preg_split('/\s+/', $text, -1, PREG_SPLIT_NO_EMPTY);
+        $words = preg_split('/\s+/', $textWithoutEmojis, -1, PREG_SPLIT_NO_EMPTY);
         
         foreach ($words as $word) {
             // Clean the word but preserve enough structure for word boundary detection
@@ -303,7 +326,7 @@ When in doubt, choose 'safe' unless the content clearly violates safety guidelin
         }
 
         // Check for distributed obfuscation across multiple words
-        $condensed = $this->normalizeForMatching(str_replace(' ', '', $text));
+        $condensed = $this->normalizeForMatching(str_replace(' ', '', $textWithoutEmojis));
         $banned = config('moderation.banned_words', []);
         
         foreach ($banned as $bad) {
@@ -328,7 +351,7 @@ When in doubt, choose 'safe' unless the content clearly violates safety guidelin
         ];
 
         foreach ($compoundPatterns as $pattern => $description) {
-            if (preg_match($pattern, $text)) {
+            if (preg_match($pattern, $textWithoutEmojis)) {
                 Log::warning("Compound racial slur detected: '{$text}' matches pattern for '{$description}'");
                 return $description;
             }

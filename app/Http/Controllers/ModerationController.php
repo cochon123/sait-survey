@@ -38,8 +38,8 @@ class ModerationController extends Controller
     public function checkProposition(Request $request)
     {
         $request->validate([
-            'title' => 'nullable|string|max:255',
-            'content' => 'required|string|max:1000'
+            'title' => 'nullable|string|max:255|regex:/^[\w\s\-\p{Emoji}]*$/u',
+            'content' => 'required|string|max:1000|regex:/^[\w\s\-\p{Emoji}]*$/u'
         ]);
 
         $title = $request->input('title', '');
@@ -59,7 +59,7 @@ class ModerationController extends Controller
     public function checkComment(Request $request)
     {
         $request->validate([
-            'content' => 'required|string|max:500'
+            'content' => 'required|string|max:500|regex:/^[\w\s\-\p{Emoji}]*$/u'
         ]);
 
         $result = $this->moderationService->moderateComment($request->input('content'));
