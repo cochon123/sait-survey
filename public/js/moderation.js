@@ -1,5 +1,5 @@
 /* eslint-env browser */
-/* global window document console fetch FormData alert */
+/* global document window console fetch FormData alert */
 /**
  * Content moderation service
  * Handles pre-submission checks and rejection popups
@@ -18,6 +18,7 @@ class ContentModerationService {
         };
 
         this.logDebug('constructor');
+
         this.popup = document.getElementById('moderation-popup');
         this.reasonElement = document.getElementById('moderation-reason');
         this.editBtn = document.getElementById('moderation-edit-btn');
@@ -80,7 +81,7 @@ class ContentModerationService {
         try {
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
             this.logDebug('making request', endpoint, data);
-            
+
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {

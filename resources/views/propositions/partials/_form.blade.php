@@ -3,7 +3,6 @@
         @csrf
         <div class="flex-1 relative">
             <input type="text" name="content" id="content" placeholder="Share your idea to improve SAIT..." maxlength="1000" required class="form-input !rounded-full w-full pr-12">
-            <span id="char-count" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500">0</span>
         </div>
         <button type="submit" class="btn-primary !p-3 !rounded-full aspect-square flex-shrink-0">
             <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor">

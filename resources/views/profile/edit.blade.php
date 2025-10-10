@@ -286,10 +286,10 @@
                     const data = await response.json();
                     updateVoteDisplay(propositionId, data);
                 } else {
-                    console.error('Vote failed');
+                    if (window.APP_DEBUG) console.error('Vote failed');
                 }
             } catch (error) {
-                console.error('Vote error:', error);
+                if (window.APP_DEBUG) console.error('Vote error:', error);
             }
         }
 
@@ -366,7 +366,7 @@
                     alert('Failed to delete proposition');
                 }
             } catch (error) {
-                console.error('Delete error:', error);
+                if (window.APP_DEBUG) console.error('Delete error:', error);
                 alert('Failed to delete proposition');
             }
         }
@@ -394,7 +394,7 @@
                     alert('Failed to delete comment');
                 }
             } catch (error) {
-                console.error('Delete comment error:', error);
+                if (window.APP_DEBUG) console.error('Delete comment error:', error);
                 alert('Failed to delete comment');
             }
         }
@@ -424,7 +424,7 @@
                         alert('Failed to add comment');
                     }
                 } catch (error) {
-                    console.error('Comment error:', error);
+                    if (window.APP_DEBUG) console.error('Comment error:', error);
                     alert('Failed to add comment');
                 }
             }

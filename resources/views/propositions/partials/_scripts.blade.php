@@ -1,3 +1,7 @@
+<script>
+    // Expose debug flag to client-side JS
+    window.APP_DEBUG = {{ config('app.debug') ? 'true' : 'false' }};
+</script>
 <script src="{{ asset('js/moderation.js') }}"></script>
 <script>
     // Character counter for authenticated user form
@@ -400,7 +404,7 @@
                             throw new Error('Error adding comment');
                         }
                     } catch (error) {
-                        console.error('Error:', error);
+                        if (window.APP_DEBUG) console.error('Error:', error);
                         // In case of error, don't show alert to avoid disrupting UX
                     } finally {
                         // Restaurer le bouton

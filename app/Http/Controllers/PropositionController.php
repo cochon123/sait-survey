@@ -80,8 +80,9 @@ class PropositionController extends Controller
 
     public function store(Request $request)
     {
+        // Allow longer content and punctuation/obfuscation; DB column is TEXT
         $request->validate([
-            'content' => 'required|string|max:1000|regex:/^[\w\s\-\p{Emoji}]*$/u',
+            'content' => 'required|string|max:5000',
         ]);
 
         $proposition = Proposition::create([
@@ -90,7 +91,7 @@ class PropositionController extends Controller
         ]);
 
         // Check if this is a pending proposition from guest authentication
-        if ($request->has('pending_proposition') && $request->pending_proposition) {
+        if ($request->has('pending_proposition') && $request->pending_proposition === true) {
             // This was a guest proposition, mark it as special for styling
             session()->flash('new_proposition_id', $proposition->id);
         }
@@ -103,7 +104,7 @@ class PropositionController extends Controller
         $userId = Auth::id();
 
         // Check if user is authenticated
-        if (!$userId) {
+        if ($userId === null) {
             return response()->json(['error' => 'Authentication required'], 401);
         }
 
@@ -115,7 +116,7 @@ class PropositionController extends Controller
         $userId = Auth::id();
 
         // Check if user is authenticated
-        if (!$userId) {
+        if ($userId === null) {
             return response()->json(['error' => 'Authentication required'], 401);
         }
 
@@ -135,8 +136,8 @@ class PropositionController extends Controller
         // Determine the opposite vote type
         $oppositeVoteType = $voteType === 'upvote' ? 'downvote' : 'upvote';
 
-        // Check if user has already voted
-        if ($proposition->hasUserVoted($userId)) {
+    // Check if user has already voted
+    if ($proposition->hasUserVoted($userId) === true) {
             $currentVote = $proposition->getUserVoteType($userId);
 
             if ($currentVote === $voteType) {
@@ -191,7 +192,7 @@ class PropositionController extends Controller
     public function destroy(Proposition $proposition)
     {
         // Check if user is authenticated
-        if (!Auth::check()) {
+        if (Auth::check() === false) {
             return response()->json(['error' => 'Authentication required'], 401);
         }
 

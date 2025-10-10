@@ -11,8 +11,9 @@ class CommentController extends Controller
 {
     public function store(Request $request, Proposition $proposition)
     {
+        // Allow punctuation/obfuscation in comments and increase max length; moderation will handle safety.
         $request->validate([
-            'content' => 'required|string|max:500|regex:/^[\w\s\-\p{Emoji}]*$/u',
+            'content' => 'required|string|max:2000',
         ]);
 
         $comment = $proposition->comments()->create([
@@ -41,7 +42,7 @@ class CommentController extends Controller
     public function destroy(Comment $comment)
     {
         // Check if user owns the comment or is admin
-        if ($comment->user_id !== Auth::id() && !Auth::user()->is_admin) {
+        if ($comment->user_id !== Auth::id() && Auth::user()->is_admin === false) {
             return response()->json([
                 'error' => 'Unauthorized'
             ], 403);

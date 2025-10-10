@@ -18,6 +18,8 @@ class ContentModerationService
 {
     private const DEFAULT_TIMEOUT = 10; // 10 secondes
     private const MODEL = 'gemma-3-1b-it';
+    // Larger model used for escalated checks when obfuscation is detected
+    private const ESCALATION_MODEL = 'models/gemini-flash-lite-latest';
     
     /**
      * Modère un pseudonyme utilisateur
@@ -28,12 +30,20 @@ class ContentModerationService
         // Server-side pre-check for obfuscated banned words
         $banned = $this->detectObfuscatedBannedWords($nickname);
         if ($banned !== null) {
-            Log::warning("Obfuscated banned word detected in nickname: {$banned}");
-            return [
-                'approved' => false,
-                'reason' => 'Contains disallowed language (obfuscated)',
-                'decision' => 'unsafe'
-            ];
+            Log::warning("Obfuscated banned word detected in nickname: {$banned}. Escalating to larger model for confirmation.");
+            // Escalate to larger model instead of immediately rejecting
+            try {
+                $prompt = $this->getNicknamePrompt($nickname) . "\n\nDetected obfuscated token: {$banned}. Please re-evaluate with extra scrutiny.";
+                return $this->largeModelModerate($this->getSystemInstruction() . "\n\n" . $prompt, 'nickname');
+            } catch (Exception $e) {
+                Log::error('Escalation to large model failed for nickname: ' . $e->getMessage());
+                // Conservative fallback: mark unsafe
+                return [
+                    'approved' => false,
+                    'reason' => 'Contains disallowed language (obfuscated) - moderation unavailable',
+                    'decision' => 'unsafe'
+                ];
+            }
         }
 
         // Check for advanced bypass attempts
@@ -64,12 +74,18 @@ class ContentModerationService
 
         if ($bannedTitle !== null || $bannedContent !== null) {
             $detected = $bannedTitle ?? $bannedContent;
-            Log::warning("Obfuscated banned word detected in proposition: {$detected}");
-            return [
-                'approved' => false,
-                'reason' => 'Contains disallowed language (obfuscated)',
-                'decision' => 'unsafe'
-            ];
+            Log::warning("Obfuscated banned word detected in proposition: {$detected}. Escalating to larger model for confirmation.");
+            try {
+                $prompt = $this->getPropositionPrompt($title, $content) . "\n\nDetected obfuscated token: {$detected}. Please re-evaluate with extra scrutiny.";
+                return $this->largeModelModerate($this->getSystemInstruction() . "\n\n" . $prompt, 'proposition');
+            } catch (Exception $e) {
+                Log::error('Escalation to large model failed for proposition: ' . $e->getMessage());
+                return [
+                    'approved' => false,
+                    'reason' => 'Contains disallowed language (obfuscated) - moderation unavailable',
+                    'decision' => 'unsafe'
+                ];
+            }
         }
 
         // Check for advanced bypass attempts
@@ -94,12 +110,18 @@ class ContentModerationService
         // Pre-check comment content for obfuscated banned words
         $banned = $this->detectObfuscatedBannedWords($content);
         if ($banned !== null) {
-            Log::warning("Obfuscated banned word detected in comment: {$banned}");
-            return [
-                'approved' => false,
-                'reason' => 'Contains disallowed language (obfuscated)',
-                'decision' => 'unsafe'
-            ];
+            Log::warning("Obfuscated banned word detected in comment: {$banned}. Escalating to larger model for confirmation.");
+            try {
+                $prompt = $this->getCommentPrompt($content) . "\n\nDetected obfuscated token: {$banned}. Please re-evaluate with extra scrutiny.";
+                return $this->largeModelModerate($this->getSystemInstruction() . "\n\n" . $prompt, 'comment');
+            } catch (Exception $e) {
+                Log::error('Escalation to large model failed for comment: ' . $e->getMessage());
+                return [
+                    'approved' => false,
+                    'reason' => 'Contains disallowed language (obfuscated) - moderation unavailable',
+                    'decision' => 'unsafe'
+                ];
+            }
         }
 
         // Check for advanced bypass attempts
@@ -162,6 +184,57 @@ class ContentModerationService
         } catch (Exception $e) {
             // Fallback : approuver le contenu en cas d'erreur
             return $this->getFallbackResponse();
+        }
+    }
+
+    /**
+     * Escalate moderation to a larger Gemini model when obfuscation is suspected.
+     * Returns same structure as moderate().
+     */
+    private function largeModelModerate(string $fullPrompt, string $type): array
+    {
+        try {
+            $result = Gemini::generativeModel(model: self::ESCALATION_MODEL)
+                ->generateContent($fullPrompt);
+
+            $response = $result->text();
+            Log::info("Escalated AI Moderation Response for {$type}: " . $response);
+
+            $cleanResponse = $this->cleanJsonResponse($response);
+            $decodedResponse = json_decode($cleanResponse, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                // If parsing fails, conservative fallback: reject
+                return [
+                    'approved' => false,
+                    'reason' => 'Contains disallowed language (obfuscated) - escalation failed to parse',
+                    'decision' => 'unsafe'
+                ];
+            }
+
+            if (isset($decodedResponse['decision']) === false || isset($decodedResponse['reasoning']) === false) {
+                return [
+                    'approved' => false,
+                    'reason' => 'Contains disallowed language (obfuscated) - unexpected escalation response',
+                    'decision' => 'unsafe'
+                ];
+            }
+
+            $isSafe = strtolower($decodedResponse['decision']) === 'safe';
+
+            return [
+                'approved' => $isSafe,
+                'reason' => $decodedResponse['reasoning'],
+                'decision' => $decodedResponse['decision']
+            ];
+        } catch (Exception $e) {
+            Log::error('Large model moderation failed: ' . $e->getMessage());
+            // Conservative fallback: unsafe
+            return [
+                'approved' => false,
+                'reason' => 'Contains disallowed language (obfuscated) - moderation service error',
+                'decision' => 'unsafe'
+            ];
         }
     }
     
@@ -277,7 +350,7 @@ When in doubt, choose 'safe' unless the content clearly violates safety guidelin
         $patterns = config('moderation.bypass_patterns', []);
 
         foreach ($patterns as $pattern) {
-            if (preg_match($pattern, $text)) {
+            if (preg_match($pattern, $text) === 1) {
                 Log::info("Pattern detection: '{$text}' matches pattern '{$pattern}'");
                 return 'obfuscated_profanity';
             }
@@ -351,7 +424,7 @@ When in doubt, choose 'safe' unless the content clearly violates safety guidelin
         ];
 
         foreach ($compoundPatterns as $pattern => $description) {
-            if (preg_match($pattern, $textWithoutEmojis)) {
+            if (preg_match($pattern, $textWithoutEmojis) === 1) {
                 Log::warning("Compound racial slur detected: '{$text}' matches pattern for '{$description}'");
                 return $description;
             }
@@ -380,15 +453,15 @@ When in doubt, choose 'safe' unless the content clearly violates safety guidelin
         }
 
         // Check for excessive spacing between characters
-        if (preg_match('/\b\w(\s+\w){3,}\b/', $text)) {
+        if (preg_match('/\b\w(\s+\w){3,}\b/', $text) === 1) {
             Log::info("Excessive character spacing detected: {$text}");
             return true;
         }
 
         // Check for Base64 or hex encoded content that might contain profanity
         $minLength = $thresholds['min_encoded_length'];
-        if (preg_match("/^[A-Za-z0-9+\/=]{{$minLength},}$/", trim($text)) || 
-            preg_match("/^[0-9A-Fa-f]{{$minLength},}$/", trim($text))) {
+        if (preg_match("/^[A-Za-z0-9+\/=]{{$minLength},}$/", trim($text)) === 1 || 
+            preg_match("/^[0-9A-Fa-f]{{$minLength},}$/", trim($text)) === 1) {
             Log::info("Potential encoded content detected: {$text}");
             return true;
         }
