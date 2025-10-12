@@ -15,14 +15,13 @@
         <input
             type="text"
             id="guest-proposition-input"
-            placeholder="Login to share your ideas..."
+            placeholder="Share your idea to improve SAIT..."
             maxlength="1000"
-            class="form-input flex-1 !rounded-full cursor-not-allowed opacity-70"
-            readonly
+            class="form-input flex-1 !rounded-full"
         >
         <button
             id="guest-send-btn"
-            class="btn-secondary !p-3 !rounded-full aspect-square flex-shrink-0"
+            class="btn-primary !p-3 !rounded-full aspect-square flex-shrink-0"
         >
             <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>

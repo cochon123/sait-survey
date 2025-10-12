@@ -27,7 +27,7 @@
             const loginFormElement = document.getElementById('login-form-element');
             const registerFormElement = document.getElementById('register-form-element');
 
-            let pendingProposition = '';
+            let pendingAction = null; // {type: 'proposition'|'upvote'|'downvote'|'comment', data: ...}
 
             // Character counter for guest input
             if (guestInput) {
@@ -36,7 +36,7 @@
                 });
             }
 
-            // Send button click
+            // Send button click for proposition
             if (guestSendBtn) {
                 guestSendBtn.addEventListener('click', function() {
                     const propositionText = guestInput ? guestInput.value.trim() : '';
@@ -49,33 +49,117 @@
                         return;
                     }
 
-                    pendingProposition = propositionText;
+                    pendingAction = {
+                        type: 'proposition',
+                        content: propositionText
+                    };
                     openAuthModal();
                 });
             }
 
-            // Handle form submissions with pending proposition
-            function handleFormSubmit(form, action) {
+            // Guest vote buttons - upvote
+            document.body.addEventListener('click', function(e) {
+                if (e.target.closest('.guest-upvote-btn')) {
+                    e.preventDefault();
+                    const button = e.target.closest('.guest-upvote-btn');
+                    const propositionId = button.dataset.id;
+                    
+                    pendingAction = {
+                        type: 'upvote',
+                        propositionId: propositionId
+                    };
+                    openAuthModal();
+                }
+
+                // Guest vote buttons - downvote
+                if (e.target.closest('.guest-downvote-btn')) {
+                    e.preventDefault();
+                    const button = e.target.closest('.guest-downvote-btn');
+                    const propositionId = button.dataset.id;
+                    
+                    pendingAction = {
+                        type: 'downvote',
+                        propositionId: propositionId
+                    };
+                    openAuthModal();
+                }
+
+                // Guest comment button
+                if (e.target.closest('.guest-comment-btn')) {
+                    e.preventDefault();
+                    const button = e.target.closest('.guest-comment-btn');
+                    const propositionId = button.dataset.id;
+                    
+                    pendingAction = {
+                        type: 'comment',
+                        propositionId: propositionId
+                    };
+                    openAuthModal();
+                }
+            });
+
+            // Handle form submissions with pending action
+            function handleFormSubmit(form) {
                 if (form) {
                     form.addEventListener('submit', function(e) {
-                        // Add the pending proposition as a hidden field
-                        const propositionInput = document.createElement('input');
-                        propositionInput.type = 'hidden';
-                        propositionInput.name = 'pending_proposition';
-                        propositionInput.value = pendingProposition;
-                        form.appendChild(propositionInput);
+                        if (pendingAction) {
+                            // Store pending action in session storage to retrieve after page reload
+                            sessionStorage.setItem('pendingAction', JSON.stringify(pendingAction));
+                        }
                     });
                 }
             }
 
-            handleFormSubmit(loginFormElement, 'login');
-            handleFormSubmit(registerFormElement, 'register');
+            handleFormSubmit(loginFormElement);
+            handleFormSubmit(registerFormElement);
         });
     @endguest
 
     // Voting functionality with event delegation
     @auth
         document.addEventListener('DOMContentLoaded', function() {
+            // Check for pending action after authentication
+            const pendingActionStr = sessionStorage.getItem('pendingAction');
+            if (pendingActionStr) {
+                try {
+                    const pendingAction = JSON.parse(pendingActionStr);
+                    sessionStorage.removeItem('pendingAction');
+                    
+                    // Execute the pending action
+                    setTimeout(async function() {
+                        if (pendingAction.type === 'proposition') {
+                            // Submit proposition
+                            const form = document.getElementById('proposition-form');
+                            const input = form.querySelector('input[name="content"]');
+                            if (form && input) {
+                                input.value = pendingAction.content;
+                                form.submit();
+                            }
+                        } else if (pendingAction.type === 'upvote') {
+                            // Trigger upvote
+                            const button = document.querySelector(`.upvote-btn[data-id="${pendingAction.propositionId}"]`);
+                            if (button) {
+                                button.click();
+                            }
+                        } else if (pendingAction.type === 'downvote') {
+                            // Trigger downvote
+                            const button = document.querySelector(`.downvote-btn[data-id="${pendingAction.propositionId}"]`);
+                            if (button) {
+                                button.click();
+                            }
+                        } else if (pendingAction.type === 'comment') {
+                            // Open comment section
+                            const button = document.querySelector(`.comment-toggle-btn[data-id="${pendingAction.propositionId}"]`);
+                            if (button) {
+                                button.click();
+                            }
+                        }
+                    }, 500); // Small delay to ensure DOM is ready
+                } catch (e) {
+                    console.error('Error executing pending action:', e);
+                }
+            }
+
             // Use event delegation for all voting buttons
             document.body.addEventListener('click', async function(e) {
                 // Close comments section when clicking outside
@@ -604,8 +688,9 @@
         // Toggle to login tab
         if (loginTab) {
             loginTab.addEventListener('click', function() {
-                loginTab.className = 'flex-1 py-2 px-4 text-center border-b-2 border-blue-500 text-blue-600 font-medium';
-                if (registerTab) registerTab.className = 'flex-1 py-2 px-4 text-center border-b-2 border-gray-200 text-gray-500';
+                // Active tab: yellow background with black text for readability
+                loginTab.className = 'flex-1 py-3 px-4 text-center border-b-2 border-transparent bg-brand text-black font-medium transition-all';
+                if (registerTab) registerTab.className = 'flex-1 py-3 px-4 text-center border-b-2 border-transparent text-muted font-medium transition-all hover:text-primary';
                 if (loginForm) loginForm.classList.remove('hidden');
                 if (registerForm) registerForm.classList.add('hidden');
             });
@@ -614,8 +699,9 @@
         // Toggle to registration tab
         if (registerTab) {
             registerTab.addEventListener('click', function() {
-                registerTab.className = 'flex-1 py-2 px-4 text-center border-b-2 border-blue-500 text-blue-600 font-medium';
-                if (loginTab) loginTab.className = 'flex-1 py-2 px-4 text-center border-b-2 border-gray-200 text-gray-500';
+                // Active tab on register: yellow background with black text
+                registerTab.className = 'flex-1 py-3 px-4 text-center border-b-2 border-transparent bg-brand text-black font-medium transition-all';
+                if (loginTab) loginTab.className = 'flex-1 py-3 px-4 text-center border-b-2 border-transparent text-muted font-medium transition-all hover:text-primary';
                 if (registerForm) registerForm.classList.remove('hidden');
                 if (loginForm) loginForm.classList.add('hidden');
             });

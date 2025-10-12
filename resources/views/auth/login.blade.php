@@ -13,10 +13,8 @@
         <div class="mb-6">
             <a href="{{ route('google.redirect') }}" class="w-full inline-flex items-center justify-center gap-3 frosted-input hover:scale-[1.02] active:scale-[0.98] transition-all py-3 px-4 rounded-lg shadow-sm">
                 <!-- Google icon -->
-                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path d="M21.8 10.23H21V10.1H12v3.8h5.4c-.23 1.36-1.33 3.99-5.4 3.99-3.25 0-5.9-2.68-5.9-5.98s2.65-5.98 5.9-5.98c1.84 0 3.08.78 3.79 1.45l2.59-2.5C18.77 3.5 15.7 2 12 2 6.48 2 2 6.48 2 12s4.48 10 10 10c5.76 0 9.59-4.03 9.59-9.7 0-.65-.07-1.14-.79-2.07z" fill="#4285F4"/>
-                </svg>
-                <span class="text-sm font-medium text-primary">Se connecter avec Google</span>
+                <img alt="Google Logo" src="https://pngimg.com/uploads/google/google_PNG19635.png" class="w-7 h-7">
+                <span class="text-sm font-medium text-primary">Connect with Google</span>
             </a>
         </div>
 
@@ -25,7 +23,7 @@
                 <div class="w-full border-t border-primary/20"></div>
             </div>
             <div class="relative flex justify-center text-sm">
-                <span class="px-2 text-muted depth-layer-1">Ou continuer avec</span>
+                <span class="px-2 text-muted depth-layer-1">Or use email</span>
             </div>
         </div>
 

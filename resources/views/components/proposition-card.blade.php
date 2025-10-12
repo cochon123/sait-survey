@@ -56,27 +56,25 @@
                     <span class="comment-count text-sm font-semibold text-primary">({{ $proposition->comments->count() }})</span>
                 </button>
             @else
-                <div class="flex items-center gap-2">
-                    <div class="frosted-input flex items-center space-x-1 px-3 py-2 rounded-xl opacity-60 cursor-not-allowed">
-                        <svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
-                        </svg>
-                        <span class="text-sm font-medium text-muted">{{ $proposition->upvotes }}</span>
-                    </div>
-                    <div class="frosted-input flex items-center space-x-1 px-3 py-2 rounded-xl opacity-60 cursor-not-allowed">
-                        <svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                        <span class="text-sm font-medium text-muted">{{ $proposition->downvotes }}</span>
-                    </div>
-                    <div class="frosted-input flex items-center space-x-2 px-3 py-2 rounded-xl opacity-60 cursor-not-allowed">
-                        <svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                        </svg>
-                        <span class="text-sm text-muted">Comment</span>
-                        <span class="text-sm font-medium text-muted">({{ $proposition->comments->count() }})</span>
-                    </div>
-                </div>
+                <button class="guest-upvote-btn frosted-input flex items-center space-x-1 px-3 py-2 rounded-xl transition-all duration-200 hover:shadow-frosted-s hover:bg-green-50" data-id="{{ $proposition->id }}">
+                    <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                    </svg>
+                    <span class="text-sm font-medium text-green-500">{{ $proposition->upvotes }}</span>
+                </button>
+                <button class="guest-downvote-btn frosted-input flex items-center space-x-1 px-3 py-2 rounded-xl transition-all duration-200 hover:shadow-frosted-s hover:bg-red-50" data-id="{{ $proposition->id }}">
+                    <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                    <span class="text-sm font-medium text-red-500">{{ $proposition->downvotes }}</span>
+                </button>
+                <button class="guest-comment-btn frosted-input flex items-center space-x-2 px-3 py-2 rounded-xl transition-all duration-200 hover:shadow-frosted-s" data-id="{{ $proposition->id }}">
+                    <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                    </svg>
+                    <span class="text-sm text-primary">Comment</span>
+                    <span class="text-sm font-medium text-primary">({{ $proposition->comments->count() }})</span>
+                </button>
             @endauth
         </div>
 
